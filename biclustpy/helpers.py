@@ -49,7 +49,7 @@ def col_to_node(col, num_rows):
     return num_rows + col
 
 def node_to_col(node, num_rows):
-    """Returns column ID of a node in the intance's graph representation that represents a column.
+    """Returns column ID of a node in the instance's graph representation that represents a column.
     
     Args:
         node (int): The node ID of the column in the graph representation.
@@ -153,3 +153,5 @@ def is_bi_clique(graph, num_rows):
     
 def is_singleton(bi_cluster):
     return (len(bi_cluster[0]) == 0) or (len(bi_cluster[1]) == 0)
+
+

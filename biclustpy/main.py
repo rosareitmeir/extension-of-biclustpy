@@ -1,6 +1,10 @@
-from . import helpers
-from . import ilp
-from . import ch
+import grasp
+import gvns
+import ils
+# before starting with: from .
+import helpers
+import ilp
+import ch
 
 class Algorithm:
     
@@ -45,6 +49,26 @@ class Algorithm:
         self.algorithm_name = "CH"
         self.ch_alpha = alpha
         self.ch_seed = seed
+
+    # ROSA NEW
+    # metaheuristics
+
+    def use_GVNS(self):  # General Variable Neighborhood Search (GVNS)
+        """Use the algorithm \"GVNS\".
+                """
+        self.algorithm_name="GVNS"
+
+    def use_ILS(self):  # Iterated Local Search
+        """Use the algorithm \"ILS\".
+                """
+        self.algorithm_name = "ILS"
+
+    def use_GRASP(self):  # Greedy Randomized Adaptive Search Procedure
+        """Use the algorithm \"GRASP\".
+                """
+        self.algorithm_name="GRASP"
+
+
             
     def run(self, weights, subgraph):
         """Runs the selected algorithm on a given subgraph.
@@ -62,11 +86,18 @@ class Algorithm:
             return ilp.run(weights, subgraph, self.ilp_time_limit, self.ilp_tune)
         elif self.algorithm_name == "CH":
             return ch.run(weights, subgraph, self.ch_alpha, self.ch_seed)
+        #NEW ROSA
+        elif self.algorithm_name == "GRASP":
+            return grasp.run(weights,subgraph)
+        elif self.algorithm_name == "GVNS":
+            return gvns.run(weights, subgraph)
+        elif self.algorithm_name == "ILS":
+            return ils.run(weights, subgraph)
         else:
             raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\".")
     
     
-def compute_bi_clusters(weights, algorithm):
+def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
     """Computes bi-clusters using bi-cluster editing.
     
     Given a matrix W = (w[i][k]) of weights of dimension n x m with positive and negative 
@@ -84,6 +115,7 @@ def compute_bi_clusters(weights, algorithm):
     Args:
         weights (numpy.array): The problem instance.
         algorithm (Algorithm): The subgraph that should be rendered bi-transitive.
+       ROSA  metaheuristic (Algorithm) : improve initial solution which is created by algorithm
     
     Returns:
         list of tuple of list of int: List of computed bi-clusters. 
@@ -142,6 +174,14 @@ def compute_bi_clusters(weights, algorithm):
         m = len([node for node in subgraph.nodes if helpers.is_col(node, num_rows)])
         print("Dimension: " + str(n) + " x " + str(m))
         bi_transitive_subgraph, local_obj_val, local_is_optimal = algorithm.run(weights, subgraph)
+
+        # ROSA NEW
+        # improve solution by chosen metaheuristic: GVNS or ILS
+        if metaheurisitc != None:
+            print("HELLO")
+            improved_bi_trans_subgraph, improved_local_obj_val, local_is_optimal = metaheurisitc.run(weights, bi_transitive_subgraph)
+
+
         obj_val = obj_val + local_obj_val
         is_optimal = is_optimal and local_is_optimal
         for component in helpers.connected_components(bi_transitive_subgraph):
