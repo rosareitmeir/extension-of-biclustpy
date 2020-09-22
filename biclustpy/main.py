@@ -70,7 +70,7 @@ class Algorithm:
 
 
             
-    def run(self, weights, subgraph):
+    def run(self, weights, subgraph, obj_val=None):
         """Runs the selected algorithm on a given subgraph.
         
         Args:
@@ -92,7 +92,7 @@ class Algorithm:
         elif self.algorithm_name == "GVNS":
             return gvns.run(weights, subgraph)
         elif self.algorithm_name == "ILS":
-            return ils.run(weights, subgraph)
+            return ils.run(weights, subgraph,obj_val)
         else:
             raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\".")
     
@@ -178,7 +178,7 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
         # ROSA NEW
         # improve solution by chosen metaheuristic: GVNS or ILS
         if metaheurisitc != None:
-            improved_bi_trans_subgraph, improved_local_obj_val, local_is_optimal = metaheurisitc.run(weights, bi_transitive_subgraph)
+            improved_bi_trans_subgraph, improved_local_obj_val, local_is_optimal = metaheurisitc.run(weights, bi_transitive_subgraph, local_obj_val)
 
 
         obj_val = obj_val + local_obj_val

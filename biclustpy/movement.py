@@ -1,3 +1,5 @@
+import itertools
+
 import helpers
 import numpy as np
 # neighborhood movements: Mov-Vertex, Join-Bicluster, Break Bicluster
@@ -11,25 +13,27 @@ class Edit_matrix:
         self.V1 = [node for node in subgraph.nodes if helpers.is_row(node, self.num_rows)]
         self.V2 = [node for node in subgraph.nodes if helpers.is_col(node, self.num_rows)]
         self.bicluster_set= helpers.connected_components(subgraph)
-        self.number_biclusters=len(self.biclusterset)
-        self.matrix, self.node_to_matrix = self.initialize_edit_matrix(weights, subgraph)
+        self.number_biclusters=len(self.bicluster_set)
+        self.edit_matrix, self.node_to_matrix = self.initialize_edit_matrix()
+        #self.biclust_to_matrix= {x: self.bicluster_set[x].name for x in range(len(self.bicluster_set))}
 
     def initialize_edit_matrix(m):
         # according to page 10 of the paper
 
         # setting all entries to 0
         edit_matrix = np.zeros((len(m.V1) + len(m.V2), m.number_biclusters))
-
-        # calculate entries row for row
-        edit_matrix=m.fillrowbyrow(m,True,0, edit_matrix)
-        edit_matrix=m.fillrowbyrow(m,False,len(m.V1),edit_matrix)
-
-        return edit_matrix
-
-
-
-    def fillrowbyrow(m,rightorder,counter, edit_matrix):
         node_to_matrix={}
+        #bicluster_to_matrix={}
+        # calculate entries row for row
+        edit_matrix,node_to_matrix=m.fillrowbyrow(True,0, edit_matrix,node_to_matrix)
+        edit_matrix,node_to_matrix=m.fillrowbyrow(False,len(m.V1),edit_matrix,node_to_matrix)
+
+        return edit_matrix, node_to_matrix
+
+
+
+    def fillrowbyrow(m,rightorder,counter, edit_matrix, node_to_matrix):
+
         # according to defintion of matrix entries on page 10
         if rightorder:
             nodes1= m.V1
@@ -77,13 +81,19 @@ def execute_VND( curval, edit_matrix):
             curval,neighbour=calc_move_vertex(curval, edit_matrix)
             if neighbour != None: #new better solution found
                 changed=True
+                # update edit matrix and solution= bicluster_set : remove moved_vertex and add it to the other bicluster
                 update_move_vertex(neighbour,edit_matrix)
-                # update solution
+
 
         # join bicluster
         elif k==1:
             # calc values and check it to current value
-            calc_join_bicluster(curval, edit_matrix)
+            curval, neighbour=calc_join_bicluster(curval, edit_matrix)
+            if neighbour!=None:
+                changed=True
+                # update edit matrix and bicluster_Set : remove both biclusters and add new joined one
+                update_join_bicluster(neighbour,edit_matrix)
+
 
         # break bicluster
         else: #k==2
@@ -98,7 +108,7 @@ def execute_VND( curval, edit_matrix):
 
 
 def calc_move_vertex(curval, m): # curval is value of the current solution ,m is an object of edit-matrix class
-    curval=curval
+    bestval=curval
     bestneighbour=None
 
     for i in range(m.number_biclusters): # loop through every bicluster
@@ -107,8 +117,8 @@ def calc_move_vertex(curval, m): # curval is value of the current solution ,m is
             for j in range(m.number_biclusters): # moving to other bicluster
                 if i==j: continue
                 value= curval+ m.edit_matrix[matrix_index][j]+ m.edit_matrix[matrix_index][i]
-                if value < curval:
-                    curval=value
+                if value < bestval:
+                    bestval=value
                     bestneighbour=[node,i,j] # list of movement: moved node from bicluster i to bicluster j
 
     return curval,bestneighbour
@@ -121,6 +131,7 @@ def update_move_vertex(neighbour, m): # neighbour with moved_node and the two bi
     after_cluster_index = neighbour[2]
     after_cluster = m.bicluster_set[after_cluster_index]
 
+    # update edit matrix
     m.edit_matrix[index_moved_node][before_cluster_index] *= -1
     m.edit_matrix[index_moved_node][after_cluster_index] *= -1
 
@@ -148,12 +159,45 @@ def update_move_vertex(neighbour, m): # neighbour with moved_node and the two bi
             m.edit_matrix[node2_index][before_cluster_index] += edgeweight
             m.edit_matrix[node2_index][after_cluster_index] -= edgeweight
 
+    # update bicluster set
+    before_cluster.remove_node(moved_node)
+    after_cluster.add_node(moved_node)
+    after_cluster.add_edges_from([(moved_node, l)  for l in [elem for elem in after_cluster.nodes if elem in V2]])
+    #check=helpers.is_bi_clique(after_cluster,m.num_rows)
 
     return
 
 def calc_join_bicluster(curval, m):
+    bestneighbour=None
+    bestval=curval
+    for biclustpair in itertools.combinations(m.bicluster_set, r=2): # calculate value for every possible bicluster join
+        biclust1 = biclustpair[0]
+        index_biclust1 = m.bicluster_set.index(biclust1)
+        biclust2 = biclustpair[1]
+        index_biclust2 = m.bicluster_set.index(biclust2)
+        # calculating sum page 11 formula (11)
+        sum=0
+        for node in biclust1.nodes:
+            sum += m.edit_matrix[m.node_to_matrix(node)][index_biclust2]
+        val= curval+sum
+        if val < bestval:
+            bestval=val
+            bestneighbour=[index_biclust1, index_biclust2]
 
-    return curval
+
+    return bestval, bestneighbour
+
+
+def update_join_bicluster(neighbour,m):
+    # update edit matrix
+    # update bicluster set
+
+
+    return neighbour
+
+
+
+
 
 def calc_break_bicluster(curval,m):
     return curval

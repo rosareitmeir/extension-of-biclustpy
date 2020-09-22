@@ -122,6 +122,7 @@ def connected_components(graph):
     components = [nx.Graph() for i in range(num_components)]
     labels = {}
     for i in range(num_components):
+
         components[i].add_nodes_from(nodes_of_components[i])
         for node in nodes_of_components[i]:
             labels[node] = i
