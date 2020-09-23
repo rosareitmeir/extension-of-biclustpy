@@ -4,8 +4,7 @@ import movement
 
 
 def run(weights, bi_transitive_subgrpah):
-    matrix= movement.initialize_edit_matrix
-
+   #todo
 
     optimized_subgraph= nx.subgraph
     return optimized_subgraph

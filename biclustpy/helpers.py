@@ -155,4 +155,13 @@ def is_bi_clique(graph, num_rows):
 def is_singleton(bi_cluster):
     return (len(bi_cluster[0]) == 0) or (len(bi_cluster[1]) == 0)
 
-
+# new Rosa
+def build_bicluster(m,nodes1,nodes2=None):
+    graph = nx.Graph()
+    graph.add_nodes_from(nodes1)
+    if nodes2!=None:
+        graph.add_nodes_from(nodes2)
+    graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in m.V1] for y in [elem for elem in graph.nodes if elem in m.V2])
+    graph.add_edges_from((x,y) for x in[elem for elem in graph.nodes if elem in m.V2] for y in [elem for elem in graph.nodes if elem in m.V1] )
+    check=is_bi_clique(graph,m.num_rows)
+    return graph
