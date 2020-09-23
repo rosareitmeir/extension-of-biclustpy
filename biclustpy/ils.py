@@ -2,7 +2,7 @@ import networkx as nx
 import movement
 
 
-def run(weights, bi_transitive_subgrpah, obj_val, max_iterations):
+def run(weights, bi_transitive_subgrpah, obj_val): # + max_iterations
     current_iteration=0
     iteration_with_best_solution=0
     initialized_solution= movement.Solution(weights, bi_transitive_subgrpah)
