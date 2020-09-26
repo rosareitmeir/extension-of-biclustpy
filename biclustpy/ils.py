@@ -2,25 +2,32 @@ import networkx as nx
 import movement
 
 
-def run(weights, bi_transitive_subgrpah, obj_val): # + max_iterations
-    current_iteration=0
-    iteration_with_best_solution=0
+def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax): # + max_iterations
+
+
     initialized_solution= movement.Solution(weights, bi_transitive_subgrpah)
-
+    # local search for initialized solution
     best_solution,best_value= movement.execute_VND( obj_val,initialized_solution)
-
-    #while i<max_iterations and bestsolution_found==False:
-        # current_iteration+=1
-        # shake solution (best_solution), return new solution
-        # execute_VND(shaked solution) return optimized solution
+    best_iter=0
+    cur_iter=0
+    stopcond=False
+    while not stopcond:
+        shaked_solution,shaked_value=movement.shake_solution(nmin,nmax,best_solution,best_value,k=None)
+        VND_solution,VND_value= movement.execute_VND(shaked_value,shaked_solution)
         # check acceptance criterion
-            # if value of VND solution < bestvalue
-                #iteration_with_best_solution=current_iteration
-                # best_solution=VND solution
-            # elif value of VND solution >= bestvalue and current_iteration- iteration_with_best_soultion< max_iterations
-                # nothing to change continue
-            # else : best solution value and VNS solution have same obj_val
-                #bestsoultion_found =True
+        if VND_value < best_value:
+                best_iter=cur_iter
+                best_solution=VND_solution
+                cur_iter += 1
+        elif VND_value >= best_value and cur_iter- best_iter< max_iter+1:
+                # bestsolution= bestsolution
+                cur_iter += 1
+                continue
+
+        else :  # stop condition met
+                #bestsolution= bestsolution
+                stopcond=True
+
 
 
     # create optimized subgraph from best soultion bicluster set and return it

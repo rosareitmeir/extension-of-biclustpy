@@ -31,6 +31,9 @@ class Algorithm:
         self.ilp_tune = False
         self.ch_alpha = 1.0
         self.ch_seed = None
+        self.max_iter = 20
+        self.nmin = 2
+        self.nmax = 10
     
     def use_ilp(self, time_limit = 60, tune = False):
         """Use the algorithm \"ILP\".
@@ -58,10 +61,13 @@ class Algorithm:
                 """
         self.algorithm_name="GVNS"
 
-    def use_ILS(self):  # Iterated Local Search
+    def use_ILS(self,max_iter=20,nmin=2,nmax=10):  # Iterated Local Search
         """Use the algorithm \"ILS\".
                 """
         self.algorithm_name = "ILS"
+        self.max_iter=max_iter
+        self.nmin=nmin
+        self.nmax=nmax
 
     def use_GRASP(self):  # Greedy Randomized Adaptive Search Procedure
         """Use the algorithm \"GRASP\".
@@ -92,7 +98,7 @@ class Algorithm:
         elif self.algorithm_name == "GVNS":
             return gvns.run(weights, subgraph)
         elif self.algorithm_name == "ILS":
-            return ils.run(weights, subgraph,obj_val)
+            return ils.run(weights, subgraph,obj_val,self.max_iter,self.nmin,self.nmax)
         else:
             raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\".")
     
