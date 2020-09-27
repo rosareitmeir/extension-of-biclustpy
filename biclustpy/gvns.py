@@ -1,5 +1,4 @@
-import networkx as nx
-
+import helpers
 import movement
 
 
@@ -26,5 +25,5 @@ def run(weights, bi_transitive_subgrpah, cur_val,nmin,nmax,maxiter):
         #else: break # break while, no further improvment
 
     # matrix bicluster set to subgraph and return it
-    optimized_subgraph= nx.subgraph
-    return optimized_subgraph
+    optimized_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
+    return optimized_subgraph,best_val,False

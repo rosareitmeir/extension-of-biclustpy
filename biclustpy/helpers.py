@@ -165,3 +165,12 @@ def build_bicluster(m,nodes1,nodes2=None):
     graph.add_edges_from((x,y) for x in[elem for elem in graph.nodes if elem in m.V2] for y in [elem for elem in graph.nodes if elem in m.V1] )
     check=is_bi_clique(graph,m.num_rows)
     return graph
+
+
+def graph_from_components(bicluster_set):
+    graph= nx.Graph()
+    for bicluster in bicluster_set:
+        graph.add_nodes_from(bicluster.nodes)
+        graph.add_edges_from(bicluster.edges)
+
+    return graph

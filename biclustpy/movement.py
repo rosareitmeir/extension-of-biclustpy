@@ -18,43 +18,40 @@ class Solution:
         self.edit_matrix, self.node_to_matrix = self.initialize_edit_matrix()
         #self.biclust_to_matrix= {x: self.bicluster_set[x].name for x in range(len(self.bicluster_set))}
 
-    def initialize_edit_matrix(m):
-        # according to page 10 of the paper
 
-        # setting all entries to 0
-        edit_matrix = np.zeros((len(m.V1) + len(m.V2), m.number_biclusters))
+    def initialize_edit_matrix(self):
         node_to_matrix={}
-        #bicluster_to_matrix={}
-        # calculate entries row for row
-        edit_matrix,node_to_matrix=m.fillrowbyrow(True,0, edit_matrix,node_to_matrix)
-        edit_matrix,node_to_matrix=m.fillrowbyrow(False,len(m.V1),edit_matrix,node_to_matrix)
+        # according to the instruction on page10
+        # set all entries to zero
+        edit_matrix = np.zeros((len(self.V1) + len(self.V2), self.number_biclusters))
+        node1_idx=0
+        i = 0
+        # go through every pair (node1,node2) node1 € V1 , node2 € V2
+        for node1 in self.V1:
+            node2_idx = len(self.V1)
+            j = 0
+            # find biclique of node 1
+            while node1 not in self.bicluster_set[i].nodes: i += 1
+            biclique1 = i
 
-        return edit_matrix, node_to_matrix
+            for node2 in self.V2:
+                # find biclique of node2
+                while node2 not in self.bicluster_set[j].nodes: j += 1
+                biclique2 = j
 
+                if biclique1==biclique2: # same cluster add conserved edges to entry
+                    edit_matrix[node1_idx][biclique1]+= get_weight(True,node1,node2,self.num_rows,self.weights)
+                    edit_matrix[node2_idx][biclique2] += get_weight(True,node1,node2,self.num_rows,self.weights)
 
+                else: # different cluster  substract lost edges
+                    edit_matrix[node1_idx][biclique2] -= get_weight(True,node1,node2,self.num_rows,self.weights)
+                    edit_matrix[node2_idx][biclique1] -= get_weight(True,node1,node2,self.num_rows,self.weights)
 
-    def fillrowbyrow(m,rightorder,counter, edit_matrix, node_to_matrix):
+                node_to_matrix[node2]=node2_idx
+                node2_idx+=1
 
-        # according to defintion of matrix entries on page 10
-        if rightorder:
-            nodes1= m.V1
-            nodes2=m.V2
-        else:
-            nodes1 = m.V2
-            nodes2 = m.V1
-
-        for node1 in nodes1:
-
-            for b in range(len(m.bicluster_set)): # cols of editing matrix
-                # calculate sum of the edge weights between node1 € V1 and all nodes2 € (V2 and biclique b)
-                for node2 in [elem for elem in nodes2 if elem in m.bicluster_set[b]]:
-                    edit_matrix[counter][b]+= get_weight(rightorder, node1, node2, m.num_rows, m.weights)
-                # sum is negative, if node1 is not an element of biclique b
-                if node1 not in m.bicluster_set[b]:
-                    edit_matrix[counter][b] *= -1
-
-            node_to_matrix[node1]=counter
-            counter += 1
+            node_to_matrix[node1] = node1_idx
+            node1_idx += 1
 
         return edit_matrix,node_to_matrix
 
@@ -362,14 +359,14 @@ def shake_solution(nmin, nmax, inputsol, before_val, k=None):
             shaked_val= calc_join_bicluster(biclust1,neighbour[1],shaked_sol,shaked_val)
             update_join_bicluster(neighbour, shaked_sol)
         # break bicluster
-        else:
+        elif ILS or k==2:
             broken_idx=np.random.randint(shaked_sol.number_biclusters)
             checked_val,biclust1,biclust2= calc_break_bicluster(broken_idx,shaked_sol,shaked_val)
             if checked_val!=None:
                 shaked_val=checked_val
                 neighbour=[biclust1,biclust2,broken_idx]
                 update_break_bicluster(neighbour,shaked_sol)
-
+        else: break # case GVNS and no possible neighbour in the fixed neighbourhood move-vertex/join-cluster -> shaking is finished
         if ILS:
             k=np.random.randint(3)
 

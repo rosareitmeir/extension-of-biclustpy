@@ -184,8 +184,8 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
         # ROSA NEW
         # improve solution by chosen metaheuristic: GVNS or ILS
         if metaheurisitc != None:
-            improved_bi_trans_subgraph, improved_local_obj_val, local_is_optimal = metaheurisitc.run(weights, bi_transitive_subgraph, local_obj_val)
-
+            print("Optimizing constructed bi-transitive subgraph with "+ metaheurisitc.algorithm_name+".")
+            bi_transitive_subgraph, local_obj_val, local_is_optimal = metaheurisitc.run(weights, bi_transitive_subgraph, local_obj_val)
 
         obj_val = obj_val + local_obj_val
         is_optimal = is_optimal and local_is_optimal
