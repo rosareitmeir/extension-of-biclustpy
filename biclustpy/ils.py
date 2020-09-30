@@ -4,12 +4,10 @@ import helpers
 import movement
 
 
-def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax): # + max_iterations
-
-
+def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax):
     initialized_solution= movement.Solution(weights, bi_transitive_subgrpah)
     # local search for initialized solution
-    best_solution,best_value= movement.execute_VND( obj_val,initialized_solution)
+    best_solution,best_value= movement.execute_VND(obj_val,initialized_solution)
     best_iter=0
     cur_iter=0
     stopcond=False
@@ -20,6 +18,7 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax): # + max_i
         if VND_value < best_value:
                 best_iter=cur_iter
                 best_solution=VND_solution
+                best_value=VND_value
                 cur_iter += 1
         elif VND_value >= best_value and cur_iter- best_iter< max_iter+1:
                 # bestsolution= bestsolution
