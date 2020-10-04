@@ -110,7 +110,7 @@ def execute_VND(curval, sol):
             neighbour_val, neighbour=find_best_break_bicluster(VND_val, VNDsolution)
             if neighbour_val<VND_val:
                 VND_val=neighbour_val
-                # update edit matrix and bicluster_Set : remove broken biclusters and add the two new ones
+                # update edit matrix and bicluster_Set : remove broken bicluster and add the two new ones
                 changed = True
                 update_break_bicluster(neighbour,VNDsolution)
 
@@ -179,8 +179,9 @@ def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two 
     # update bicluster set
     before_cluster.remove_node(moved_node)
     if len(before_cluster.nodes)==0:
+        sol.edit_matrix=np.delete(sol.edit_matrix, before_cluster_index, 1)
         sol.bicluster_set.remove(before_cluster)
-        sol.number_biclusters-=1
+        sol.number_biclusters -=1
     after_cluster.add_node(moved_node)
     after_cluster.add_edges_from([(moved_node, l)  for l in [elem for elem in after_cluster.nodes if elem in partion2]])
     #check=helpers.is_bi_clique(after_cluster,m.num_rows)
@@ -346,7 +347,7 @@ def build_cluster_column(column, rightorder, biclust1, biclust2, broken_clust_id
         if node1 in biclust1:
             column[node1_index]= entry_n1_broken_biclust-sum
         elif node1 in biclust2:
-            column[node1_index]= -entry_n1_broken_biclust+sum
+            column[node1_index]= -1*entry_n1_broken_biclust+sum
         else:
             column[node1_index]= entry_n1_broken_biclust+sum
 

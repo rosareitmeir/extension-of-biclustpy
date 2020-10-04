@@ -56,10 +56,13 @@ class Algorithm:
     # ROSA NEW
     # metaheuristics
 
-    def use_GVNS(self):  # General Variable Neighborhood Search (GVNS)
+    def use_GVNS(self,max_iter=20,nmin=2,nmax=10):  # General Variable Neighborhood Search (GVNS)
         """Use the algorithm \"GVNS\".
                 """
         self.algorithm_name="GVNS"
+        self.max_iter = max_iter
+        self.nmin = nmin
+        self.nmax = nmax
 
     def use_ILS(self,max_iter=20,nmin=2,nmax=10):  # Iterated Local Search
         """Use the algorithm \"ILS\".
@@ -96,7 +99,7 @@ class Algorithm:
         elif self.algorithm_name == "GRASP":
             return grasp.run(weights,subgraph)
         elif self.algorithm_name == "GVNS":
-            return gvns.run(weights, subgraph)
+            return gvns.run(weights, subgraph,obj_val, self.max_iter,self.nmin,self.nmax)
         elif self.algorithm_name == "ILS":
             return ils.run(weights, subgraph,obj_val,self.max_iter,self.nmin,self.nmax)
         else:
