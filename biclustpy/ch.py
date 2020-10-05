@@ -6,7 +6,7 @@ import numpy as np
 import random
 
 def get_next_pair(queue, is_deleted, alpha, seed):
-    # If alpha = 1, the pair (i,k) is determined deterministically.
+    # If alpha = 1, the pair (i,k) is determined deterministically. returning (i.k) with maximum g-value
     if (alpha == 1):
         for ((i,k), g) in queue:
             if not (is_deleted[i] or is_deleted[k]):
@@ -93,7 +93,7 @@ def run(weights, subgraph, alpha, seed):
         bi_cluster_left.add(i)
         bi_cluster_right = set(shrinking_subgraph.adj[i])
         bi_cluster_right.add(k)
-        # Update teh bi-transitive subgraph, the shrinking subgraph, and the deletion flags.
+        # Update the bi-transitive subgraph, the shrinking subgraph, and the deletion flags.
         bi_transitive_subgraph.add_nodes_from(bi_cluster_left)
         bi_transitive_subgraph.add_nodes_from(bi_cluster_right)
         bi_transitive_subgraph.add_edges_from([(j, l) for j in bi_cluster_right for l in bi_cluster_left])

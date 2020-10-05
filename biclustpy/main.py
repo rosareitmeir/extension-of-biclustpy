@@ -30,8 +30,9 @@ class Algorithm:
         self.ilp_time_limit = 60
         self.ilp_tune = False
         self.ch_alpha = 1.0
-        self.ch_seed = None
-        self.max_iter = 20
+        self.grasp_alpha=0.7
+        self.seed = None
+        self.max_iter = 10
         self.nmin = 2
         self.nmax = 10
     
@@ -51,9 +52,17 @@ class Algorithm:
         """
         self.algorithm_name = "CH"
         self.ch_alpha = alpha
-        self.ch_seed = seed
+        self.seed = seed
 
     # ROSA NEW
+
+    def use_GRASP(self,max_iter=10,alpha=0.7,seed=None):  # Greedy Randomized Adaptive Search Procedure
+        """Use the algorithm \"GRASP\".
+                """
+        self.algorithm_name="GRASP"
+        self.grasp_alpha=alpha
+        self.max_iter=max_iter
+        self.seed = seed
     # metaheuristics
 
     def use_GVNS(self,max_iter=20,nmin=2,nmax=10):  # General Variable Neighborhood Search (GVNS)
@@ -72,10 +81,6 @@ class Algorithm:
         self.nmin=nmin
         self.nmax=nmax
 
-    def use_GRASP(self):  # Greedy Randomized Adaptive Search Procedure
-        """Use the algorithm \"GRASP\".
-                """
-        self.algorithm_name="GRASP"
 
 
             
@@ -94,10 +99,10 @@ class Algorithm:
         if self.algorithm_name == "ILP":
             return ilp.run(weights, subgraph, self.ilp_time_limit, self.ilp_tune)
         elif self.algorithm_name == "CH":
-            return ch.run(weights, subgraph, self.ch_alpha, self.ch_seed)
+            return ch.run(weights, subgraph, self.ch_alpha, self.seed)
         #NEW ROSA
         elif self.algorithm_name == "GRASP":
-            return grasp.run(weights,subgraph)
+            return grasp.run(weights,subgraph,self.max_iter,self.grasp_alpha,self.seed)
         elif self.algorithm_name == "GVNS":
             return gvns.run(weights, subgraph,obj_val, self.max_iter,self.nmin,self.nmax)
         elif self.algorithm_name == "ILS":
@@ -159,7 +164,7 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
             bi_clusters.append(bi_cluster)
         else:
             subgraphs.append(component)
-            
+    # TODO Rule 2 and New Rule
     # Print information about connected components.
     print("\n==============================================================================")
     print("Finished pre-processing.")

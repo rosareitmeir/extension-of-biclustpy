@@ -12,10 +12,10 @@ def main():
     instance.add_argument("--load", help="Load instance from .npy file.", metavar="input-file")
     instance.add_argument("--random", nargs=4, help="Randomly generate instance with num-rows rows and num-cols columns whose cells are of the form ((random value between 0 and 1) - threshold).", metavar=("num-rows", "num-cols", "threshold", "seed"))
     parser.add_argument("--save", help="Save bi-clusters as XML file.", metavar="output-file")
-    parser.add_argument("--alg", default="ILP", help="Employed algorithm. Default = ILP.", choices=["ILP", "CH"])
+    parser.add_argument("--alg", default="ILP", help="Employed algorithm. Default = ILP.", choices=["ILP", "CH","GRASP"])
     parser.add_argument("--metaheu", help="Employed meatheuristics.", choices=["ILS", "GVNS"])
     parser.add_argument("--metaheu_options", nargs=3, type=int, default=[20, 2,10], help="Options for the metaheuristic ILS: maximum number of iterations to find an improved solution, minimal and maximal number of pertubations.", metavar=("max-iter", "nmin","nmax"))
-
+    parser.add_argument("--grasp_options", nargs=3, type=float, default=[10, 0.7,None], help="Options for the algorithm GRASP: maximum number of iterations to find best solution, alpha ( between 0 and 1) to sort pairs out w.r.t to their g-values,seed for random choice.", metavar=("max-iter", "alpha","seed"))
     parser.add_argument("--ilp_options", nargs=2, type=int, default=[60, 0], help="Options for the algorithm ILP: time limit in second and flag that indicates whether model should be tuned before optimization.", metavar=("time-limit", "tune"))
     args = parser.parse_args()
     
@@ -35,6 +35,10 @@ def main():
     algorithm.algorithm_name = args.alg
     algorithm.ilp_time_limit = args.ilp_options[0]
     algorithm.ilp_tune = args.ilp_options[1]
+    algorithm.max_iter=int(args.grasp_options[0])
+    algorithm.grasp_alpha=args.grasp_options[1]
+    algorithm.seed= args.grasp_options[2]
+
 
     # NEW ROSA running with metaheuristic or not
     if args.metaheu is not None:
