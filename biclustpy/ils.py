@@ -1,19 +1,19 @@
 import networkx as nx
 
 import helpers
-import movement
+import localsearch
 
 
 def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax):
-    initialized_solution= movement.Solution(weights, bi_transitive_subgrpah)
+    initialized_solution= localsearch.Solution(weights, bi_transitive_subgrpah)
     # local search for initialized solution
-    best_solution,best_value= movement.execute_VND(obj_val,initialized_solution)
+    best_solution,best_value= localsearch.execute_VND(obj_val, initialized_solution)
     best_iter=0
     cur_iter=0
     stopcond=False
     while not stopcond:
-        shaked_solution,shaked_value=movement.shake_solution(nmin,nmax,best_solution,best_value,k=None)
-        VND_solution,VND_value= movement.execute_VND(shaked_value,shaked_solution)
+        shaked_solution,shaked_value=localsearch.shake_solution(nmin, nmax, best_solution, best_value, k=None)
+        VND_solution,VND_value= localsearch.execute_VND(shaked_value, shaked_solution)
         # check acceptance criterion
         if VND_value < best_value:
                 best_iter=cur_iter

@@ -1,8 +1,9 @@
+
 import networkx as nx
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-import movement
+import localsearch
 
 
 def prettify(elem):
@@ -164,8 +165,8 @@ def build_bicluster(nodes1,nodes2=None):
     graph.add_nodes_from(nodes1)
     if nodes2!=None:
         graph.add_nodes_from(nodes2)
-    graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in movement.V1] for y in [elem for elem in graph.nodes if elem in movement.V2])
-    graph.add_edges_from((x,y) for x in[elem for elem in graph.nodes if elem in movement.V2] for y in [elem for elem in graph.nodes if elem in movement.V1] )
+    graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in localsearch.V1] for y in [elem for elem in graph.nodes if elem in localsearch.V2])
+    graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in localsearch.V2] for y in [elem for elem in graph.nodes if elem in localsearch.V1])
     #check=is_bi_clique(graph,movement.num_rows)
     return graph
 
@@ -186,14 +187,15 @@ def is_singleton_in_same_partion(biclust1,partion):
 
 # for join bicluster
 def are_singeltons_in_same_partion(biclust1,biclust2):
-    if len(biclust1.nodes)==len(biclust2.nodes)==1 and is_row( list(biclust1.nodes)[0],movement.num_rows)==is_row( list(biclust2.nodes)[0],movement.num_rows):
+    if len(biclust1.nodes)==len(biclust2.nodes)==1 and is_row(list(biclust1.nodes)[0], localsearch.num_rows)==is_row(list(biclust2.nodes)[0], localsearch.num_rows):
            return True
     return False
 
 # for break bicluster
 def is_no_valid_biclique(biclust1, biclust2):
-    if len(biclust1) > 1 and (all(is_row(x, movement.num_rows) for x in biclust1) or all(is_col(x, movement.num_rows) for x in biclust1)):
+    if len(biclust1) > 1 and (all(is_row(x, localsearch.num_rows) for x in biclust1) or all(is_col(x, localsearch.num_rows) for x in biclust1)):
         return True
-    if len(biclust2) > 1 and (all(is_row(x, movement.num_rows) for x in biclust2) or all(is_col(x, movement.num_rows) for x in biclust2)):
+    if len(biclust2) > 1 and (all(is_row(x, localsearch.num_rows) for x in biclust2) or all(is_col(x, localsearch.num_rows) for x in biclust2)):
         return True
     return False
+

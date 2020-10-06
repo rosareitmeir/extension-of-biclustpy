@@ -5,6 +5,7 @@ import ils
 import helpers
 import ilp
 import ch
+import preprocess
 
 class Algorithm:
     
@@ -164,7 +165,7 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
             bi_clusters.append(bi_cluster)
         else:
             subgraphs.append(component)
-    # TODO Rule 2 and New Rule
+
     # Print information about connected components.
     print("\n==============================================================================")
     print("Finished pre-processing.")
@@ -180,6 +181,7 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
     is_optimal = True 
     counter = 0
     for subgraph in subgraphs:
+        removed_nodes=preprocess.execute_NewRule(subgraph,weights,num_rows)
         counter = counter + 1
         print("\n==============================================================================")
         print("Solving subproblem " + str(counter) + " of " + str(len(subgraphs)) + ".")
@@ -207,8 +209,17 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
             for node in component.nodes:
                 if helpers.is_row(node, num_rows):
                     bi_cluster[0].append(node)
+                    # adding removed nodes from New Rule or Rule 2
+                    if node in removed_nodes:
+                        bi_cluster[0].extend(removed_nodes[node])
                 else:
                     bi_cluster[1].append(helpers.node_to_col(node, num_rows))
+                    # adding removed nodes from New Rule or Rule 2
+                    if node in removed_nodes:
+                        bi_cluster[1].extend(removed_nodes[node])
+
+
+
             bi_clusters.append(bi_cluster)
         print("==============================================================================")
     

@@ -1,6 +1,6 @@
 import numpy as np
 import ch
-import movement
+import localsearch
 import helpers
 
 def run(weights, subgrpah, maxiter,alpha,seed):
@@ -11,9 +11,9 @@ def run(weights, subgrpah, maxiter,alpha,seed):
    while cur_iter - best_iter <= maxiter:
        # construct bigraph
        bi_transitive_subgrpah,value,optimal=ch.run(weights,subgrpah,alpha,seed) # alpha != 1 , random choice of pairs
-       cur_solution=movement.Solution(weights,bi_transitive_subgrpah)
+       cur_solution=localsearch.Solution(weights, bi_transitive_subgrpah)
        # local search for obtained solution
-       improved_solution, value= movement.execute_VND(value,cur_solution)
+       improved_solution, value= localsearch.execute_VND(value, cur_solution)
        if value < best_value:
             best_solution= improved_solution
             best_value=value

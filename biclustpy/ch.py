@@ -51,7 +51,7 @@ def run(weights, subgraph, alpha, seed):
         bool: True if and only if obtained solution is guaranteed to be optimal.
     """
     
-    print("Subproblem is solved with CH.")
+    #print("Subproblem is solved with CH.")
     
     # Get rows and columns of the sub-problem.
     num_rows = weights.shape[0]
@@ -81,7 +81,7 @@ def run(weights, subgraph, alpha, seed):
         queue.sort(key = lambda t: t[1], reverse = True)
     
     # Construct the bi-transitive subgraph.
-    print("Constructing the bi-transitive subgraph ...")  
+    #print("Constructing the bi-transitive subgraph ...")
     bi_transitive_subgraph = nx.Graph()
     shrinking_subgraph = nx.Graph(subgraph)
     is_deleted = {node : False for node in shrinking_subgraph.nodes}
