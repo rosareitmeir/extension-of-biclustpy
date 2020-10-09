@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--metaheu_options", nargs=3, type=int, default=[20, 2,10], help="Options for the metaheuristic ILS: maximum number of iterations to find an improved solution, minimal and maximal number of pertubations.", metavar=("max-iter", "nmin","nmax"))
     parser.add_argument("--grasp_options", nargs=3, type=float, default=[10, 0.7,None], help="Options for the algorithm GRASP: maximum number of iterations to find best solution, alpha ( between 0 and 1) to sort pairs out w.r.t to their g-values,seed for random choice.", metavar=("max-iter", "alpha","seed"))
     parser.add_argument("--ilp_options", nargs=2, type=int, default=[60, 0], help="Options for the algorithm ILP: time limit in second and flag that indicates whether model should be tuned before optimization.", metavar=("time-limit", "tune"))
+    parser.add_argument("--preprocess", default="New Rule", help="preprocessing method: Rule 2 or default New Rule")
     args = parser.parse_args()
     
     weights = np.array(0)
@@ -30,7 +31,9 @@ def main():
         threshold = float(args.random[2])
         instance = "random"
         weights = np.random.rand(num_rows, num_cols) - (threshold * np.ones((num_rows, num_cols)))
-    
+
+    preprocessing_method= args.preprocess[0]
+
     algorithm = bp.Algorithm()
     algorithm.algorithm_name = args.alg
     algorithm.ilp_time_limit = args.ilp_options[0]
@@ -47,9 +50,9 @@ def main():
         metaheuristic.max_iter=args.metaheu_options[0]
         metaheuristic.nmin=args.metaheu_options[1]
         metaheuristic.nmax = args.metaheu_options[2]
-        bi_clusters, obj_val, is_optimal = bp.compute_bi_clusters(weights, algorithm, metaheuristic)
+        bi_clusters, obj_val, is_optimal = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, metaheuristic)
     else:
-        bi_clusters, obj_val, is_optimal = bp.compute_bi_clusters(weights, algorithm)
+        bi_clusters, obj_val, is_optimal = bp.compute_bi_clusters(weights, preprocessing_method, algorithm)
     
     if args.save is not None:
         instance = ""

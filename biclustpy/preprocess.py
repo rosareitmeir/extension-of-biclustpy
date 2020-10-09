@@ -3,8 +3,6 @@ from collections import defaultdict
 import numpy as np
 import networkx as nx
 import helpers
-# for pre processing
-
 
 def execute_Rule2(graph):
 

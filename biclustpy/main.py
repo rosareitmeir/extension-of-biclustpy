@@ -112,7 +112,7 @@ class Algorithm:
             raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\".")
     
     
-def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
+def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=None ):
     """Computes bi-clusters using bi-cluster editing.
     
     Given a matrix W = (w[i][k]) of weights of dimension n x m with positive and negative 
@@ -146,7 +146,8 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
     
     # Initialize the return variable.
     bi_clusters = []
-    
+    # save removed nodes from Rule 2 or New Rule to add them to final solution
+    removed_nodes={}
     # Decompose graph into connected components and check if some 
     # of them are already bi-cliques. If so, put their rows and columns 
     # into bi-clusters. Otherwise, add the connected 
@@ -164,6 +165,11 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
                     bi_cluster[1].append(helpers.node_to_col(node, num_rows))
             bi_clusters.append(bi_cluster)
         else:
+            # Rule 2 or New Rule
+            if preprocessing_method == "Rule 2":
+                removed_nodes.update(preprocess.execute_Rule2(component))
+            else:
+                removed_nodes.update(preprocess.execute_NewRule(component,weights,num_rows))
             subgraphs.append(component)
 
     # Print information about connected components.
@@ -181,7 +187,6 @@ def compute_bi_clusters(weights, algorithm, metaheurisitc=None ):
     is_optimal = True 
     counter = 0
     for subgraph in subgraphs:
-        removed_nodes=preprocess.execute_NewRule(subgraph,weights,num_rows)
         counter = counter + 1
         print("\n==============================================================================")
         print("Solving subproblem " + str(counter) + " of " + str(len(subgraphs)) + ".")
