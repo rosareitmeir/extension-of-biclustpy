@@ -5,6 +5,12 @@ import localsearch
 
 
 def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax):
+    '''Iterated Local Search
+    according to 4.5 ( page 13)
+    given weights of edges, intitialized bi-transtive graph and its objective value, minimal and maximal number of perturbations
+    returns an optimized solution and its value
+    '''
+
     initialized_solution= localsearch.Solution(weights, bi_transitive_subgrpah)
     # local search for initialized solution
     best_solution,best_value= localsearch.execute_VND(obj_val, initialized_solution)
@@ -26,9 +32,9 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax):
                 continue
 
         else :  # stop condition met
-                #bestsolution= bestsolution
+                #bestsolution= bestsolution, no better solution in maximum of iterations found
                 stopcond=True
 
-    # create optimized subgraph from best soultion bicluster set and return it
+    # create optimized subgraph from best solution bicluster set and return it
     optimized_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
     return optimized_subgraph ,best_value, False

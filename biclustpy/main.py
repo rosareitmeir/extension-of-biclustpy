@@ -130,7 +130,7 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
     Args:
         weights (numpy.array): The problem instance.
         algorithm (Algorithm): The subgraph that should be rendered bi-transitive.
-       ROSA  metaheuristic (Algorithm) : improve initial solution which is created by algorithm
+        metaheuristic (Algorithm) : improves initial solution, which is created by algorithm
     
     Returns:
         list of tuple of list of int: List of computed bi-clusters. 
@@ -174,10 +174,11 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
 
     # Print information about connected components.
     print("\n==============================================================================")
-    print("Finished pre-processing.")
+    print("Finished pre-processing with "+ preprocessing_method+ ".")
     print("------------------------------------------------------------------------------")
     print("Number of connected components: " + str(len(components)))
     print("Number of bi-cliques: " + str(len(bi_clusters)))
+    print("Number of removed nodes: "+ str(sum([len(v)for v in removed_nodes.values()])))
     print("==============================================================================")
     
     # Solve the subproblems and construct the final bi-clusters. 
@@ -196,8 +197,8 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
         print("Dimension: " + str(n) + " x " + str(m))
         bi_transitive_subgraph, local_obj_val, local_is_optimal = algorithm.run(weights, subgraph)
 
-        # ROSA NEW
         # improve solution by chosen metaheuristic: GVNS or ILS
+        # returns improved graph and its objective value 
         if metaheurisitc != None:
             print("Optimizing constructed bi-transitive subgraph with "+ metaheurisitc.algorithm_name+".")
             bi_transitive_subgraph, local_obj_val, local_is_optimal = metaheurisitc.run(weights, bi_transitive_subgraph, local_obj_val)

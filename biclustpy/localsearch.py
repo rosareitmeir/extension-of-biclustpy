@@ -1,10 +1,7 @@
 import copy
 import itertools
-
 import helpers
 import numpy as np
-# neighborhood movements: Mov-Vertex, Join-Bicluster, Break Bicluster
-# initialize matrix and update it
 # static variables for all obj of Solution
 weights=None
 num_rows=None
@@ -12,6 +9,7 @@ V1=None
 V2=None
 
 class Solution:
+    # object, which saves edit matrix and biclusters (graphs)
     def __init__(self,weight ,subgraph):
         global weights
         weights=weight
@@ -25,16 +23,13 @@ class Solution:
         self.bicluster_set= helpers.connected_components(subgraph)
         self.number_biclusters=len(self.bicluster_set)
         self.edit_matrix, self.node_to_matrix = self.initialize_edit_matrix()
-        #self.biclust_to_matrix= {x: self.bicluster_set[x].name for x in range(len(self.bicluster_set))}
-
 
     def initialize_edit_matrix(self):
-        node_to_matrix={}
         # according to the instruction on page10
         # set all entries to zero
         edit_matrix = np.zeros((len(V1) + len(V2), self.number_biclusters))
         node1_idx=0
-
+        node_to_matrix = {}
         # go through every pair (node1,node2) node1 € V1 , node2 € V2
         for node1 in V1:
             node2_idx = len(V1)
@@ -53,7 +48,7 @@ class Solution:
                     edit_matrix[node1_idx][biclique1]+= get_weight(True,node1,node2)
                     edit_matrix[node2_idx][biclique2] += get_weight(True,node1,node2)
 
-                else: # different cluster  substract lost edges
+                else: # different cluster subtract lost edges
                     edit_matrix[node1_idx][biclique2] -= get_weight(True,node1,node2)
                     edit_matrix[node2_idx][biclique1] -= get_weight(True,node1,node2)
 
@@ -78,13 +73,14 @@ def get_weight(rightorder, node1, node2):
 
 
 def execute_VND(curval, sol):
+    ''' Variable Neighbourhood Descent
+     according to page 12 and 13 and its pseudocode of Fig. 9 on page 14 '''
     VNDsolution= copy.deepcopy(sol)
     VND_val= curval
     # 0: move-vertex neighbourhood , 1: join-bicluster neighbourhood, 2: break-bicluster neighbourhood
-    k=0; # -> starting with moving solitude node
+    k=0; # -> starting with moving a single node
     while k<3:
         changed=False
-        # find best solution for the current neighbourhood
         # move vertex
         if k==0:
             # find best neighbour in the neighbourhood move vertex
@@ -92,7 +88,7 @@ def execute_VND(curval, sol):
             if neighbour_val<VND_val: #new better solution found
                 changed=True
                 VND_val=neighbour_val
-                # update edit matrix and solution= bicluster_set : remove moved_vertex and add it to the other bicluster
+                # update edit matrix and bicluster set: remove moved_vertex and add it to the other bicluster
                 update_move_vertex(neighbour,VNDsolution)
         # join bicluster
         elif k==1:
@@ -101,7 +97,7 @@ def execute_VND(curval, sol):
             if neighbour_val< VND_val:
                 changed=True
                 VND_val=neighbour_val
-                # update edit matrix and bicluster_Set : remove both biclusters and add new joined one
+                # update edit matrix and bicluster set : remove both biclusters and add new joined one
                 update_join_bicluster(neighbour,VNDsolution)
 
         # break bicluster
@@ -110,7 +106,7 @@ def execute_VND(curval, sol):
             neighbour_val, neighbour=find_best_break_bicluster(VND_val, VNDsolution)
             if neighbour_val<VND_val:
                 VND_val=neighbour_val
-                # update edit matrix and bicluster_Set : remove broken bicluster and add the two new ones
+                # update edit matrix and bicluster set : remove broken bicluster and add the two new ones
                 changed = True
                 update_break_bicluster(neighbour,VNDsolution)
 
@@ -121,7 +117,7 @@ def execute_VND(curval, sol):
     return VNDsolution,VND_val
 
 
-def find_best_move_vertex(curval, sol): # curval is value of the current solution ,m is an object of edit-matrix class
+def find_best_move_vertex(curval, sol): # curval is value of the current solution ,m is an object of solution class
     bestval= np.inf
     bestneighbour=None
 
@@ -132,7 +128,10 @@ def find_best_move_vertex(curval, sol): # curval is value of the current solutio
             if helpers.is_col(node,num_rows):
                 partion=V2
             for j in range(sol.number_biclusters): # moving to other bicluster
-                if i==j or helpers.is_singleton_in_same_partion(sol.bicluster_set[j],partion): continue
+                if i==j or helpers.is_singleton_in_same_partion(sol.bicluster_set[j],partion):
+                    # not a different bicluster or moving a vertex will lead to an illegal bicluster
+                    continue
+                # calculate objective value for the neighbour according to formula (10) on page 11
                 value= curval + sol.edit_matrix[matrix_index][j] + sol.edit_matrix[matrix_index][i]
                 if value < bestval:
                     bestval=value
@@ -140,7 +139,7 @@ def find_best_move_vertex(curval, sol): # curval is value of the current solutio
 
     return bestval,bestneighbour
 
-def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two biclusters, m is an object of edit-matrix class
+def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two biclusters, m is an object of solution class
     moved_node=neighbour[0]
     index_moved_node=sol.node_to_matrix[moved_node]
     before_cluster_index=neighbour[1]
@@ -148,22 +147,21 @@ def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two 
     after_cluster_index = neighbour[2]
     after_cluster = sol.bicluster_set[after_cluster_index]
 
-    # update edit matrix
+    # update edit matrix according to page 11
+    # entries of moved node
     sol.edit_matrix[index_moved_node][before_cluster_index] *= -1
     sol.edit_matrix[index_moved_node][after_cluster_index] *= -1
 
-    if moved_node< num_rows: # moved node element of V1/rows
-        partion2 = V2
-        rightorder=True
+    if moved_node< num_rows: # moved node  is an element of V1/row
+        partition2 = V2, rightorder=True
 
     else:
-        partion2=V1
-        rightorder=False
+        partition2=V1, rightorder=False
 
-    # entries for all nodes € V2
-    for node2 in partion2:
+    #entries for all nodes, which are in the other partition
+    for node2 in partition2:
         node2_index = sol.node_to_matrix[node2]
-        # edge weight between moved node and node2 € V2
+        # edge weight between moved node and node2
         edgeweight = get_weight(rightorder, moved_node, node2)
         if node2 in before_cluster.nodes:
             sol.edit_matrix[node2_index][before_cluster_index] -= edgeweight
@@ -178,20 +176,18 @@ def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two 
 
     # update bicluster set
     before_cluster.remove_node(moved_node)
+    # in case moved_node was before a singleton
     if len(before_cluster.nodes)==0:
         sol.edit_matrix=np.delete(sol.edit_matrix, before_cluster_index, 1)
         sol.bicluster_set.remove(before_cluster)
         sol.number_biclusters -=1
     after_cluster.add_node(moved_node)
-    after_cluster.add_edges_from([(moved_node, l)  for l in [elem for elem in after_cluster.nodes if elem in partion2]])
-    #check=helpers.is_bi_clique(after_cluster,m.num_rows)
-
+    after_cluster.add_edges_from([(moved_node, l)  for l in [elem for elem in after_cluster.nodes if elem in partition2]])
 
 def find_best_join_bicluster(curval, sol):
     bestneighbour=None
     bestval= np.inf
     for biclustpair in itertools.combinations(sol.bicluster_set, r=2): # calculate value for every possible bicluster join
-
         biclust1 = biclustpair[0]
         index_biclust1 = sol.bicluster_set.index(biclust1)
         biclust2 = biclustpair[1]
@@ -202,7 +198,6 @@ def find_best_join_bicluster(curval, sol):
         if val < bestval:
             bestval=val
             bestneighbour=[index_biclust1, index_biclust2]
-
 
     return bestval, bestneighbour
 
@@ -223,7 +218,7 @@ def update_join_bicluster(neighbour, sol):
     biclust2=sol.bicluster_set[biclust2_index]
 
     joined_biclust= np.zeros((len(V1) + len(V2), 1))
-    # calcualtion resp. to formula on page 12
+    # calculation resp. to formula on page 12
     for node in (V1 + V2):
         matrix_index= sol.node_to_matrix[node]
         if node in biclust1:
@@ -233,13 +228,9 @@ def update_join_bicluster(neighbour, sol):
         else:
             joined_biclust[matrix_index]= sol.edit_matrix[matrix_index][biclust2_index] + sol.edit_matrix[matrix_index][biclust1_index]
 
-    if biclust1_index< biclust2_index:
-        sol.edit_matrix = np.delete(sol.edit_matrix, biclust2_index, 1)
-        sol.edit_matrix = np.delete(sol.edit_matrix, biclust1_index, 1)
-    else:
-        sol.edit_matrix = np.delete(sol.edit_matrix, biclust1_index, 1)
-        sol.edit_matrix = np.delete(sol.edit_matrix, biclust2_index, 1)
-
+    # removing biclusters and add new one
+    sol.edit_matrix = np.delete(sol.edit_matrix, max(biclust2_index,biclust1_index), 1)
+    sol.edit_matrix = np.delete(sol.edit_matrix, min(biclust2_index,biclust1_index), 1)
     sol.edit_matrix=np.append(sol.edit_matrix, joined_biclust, axis=1)
 
     # update bicluster set
@@ -247,7 +238,7 @@ def update_join_bicluster(neighbour, sol):
     sol.bicluster_set.append(joined_biclust)
     sol.bicluster_set.remove(biclust1)
     sol.bicluster_set.remove(biclust2)
-    sol.number_biclusters= len(sol.bicluster_set)
+    sol.number_biclusters -=1
 
 def find_best_break_bicluster(curval, sol):
     bestvalue=np.inf
@@ -298,6 +289,7 @@ def calc_break_bicluster(biclust_idx,sol,curval):
 
 
 def update_break_bicluster(neighbour, sol):
+    # according to page 12
     # update edit matrix
     biclust1=neighbour[0]
     biclust2=neighbour[1]
@@ -354,21 +346,25 @@ def build_cluster_column(column, rightorder, biclust1, biclust2, broken_clust_id
     return column
 
 def shake_solution(nmin, nmax, inputsol, before_val, k=None):
+    # perturbation phase for GVNS with fixed k (page 13 defined) and for ILS with random k (page 14 defined)
     shaked_sol= copy.deepcopy(inputsol)
     shaked_val=before_val
     ILS=False
     if k==None:
         k= np.random.randint(3)
         ILS=True
+    # random number of perturbation movements , default between 2 and 10
     n = np.random.randint(low=nmin,high=nmax)
     i=0
     while i <n:
         # move vertex
         if k==0 and shaked_sol.number_biclusters>1:
+            # find all possible and valid movements
             pos_movevertex = get_possible_movevertex(shaked_sol)
             random_movement= pos_movevertex[np.random.randint(len(pos_movevertex))]
             random_node=random_movement[0]
             before_clust=random_movement[1]
+            # choose random bicluster, in which node will be moved.
             after_clust=int(np.random.choice(random_movement[2],1))
             node_idx=shaked_sol.node_to_matrix[random_node]
             #calc value for new pertubated solution
@@ -383,7 +379,7 @@ def shake_solution(nmin, nmax, inputsol, before_val, k=None):
             neighbour= np.random.choice(shaked_sol.number_biclusters,2,replace=False)
             biclust1 = shaked_sol.bicluster_set[neighbour[0]]
             biclust2 = shaked_sol.bicluster_set[neighbour[1]]
-            while  helpers.are_singeltons_in_same_partion(biclust1,biclust2): # no two singeltons in same partion
+            while  helpers.are_singeltons_in_same_partion(biclust1,biclust2): # two singletons in same partition can't be joined
                 neighbour = np.random.choice(shaked_sol.number_biclusters, 2, replace=False)
                 biclust1 = shaked_sol.bicluster_set[neighbour[0]]
                 biclust2 = shaked_sol.bicluster_set[neighbour[1]]
@@ -394,9 +390,9 @@ def shake_solution(nmin, nmax, inputsol, before_val, k=None):
         # break bicluster
         elif ILS or k==2:
                 pos_movements=get_possible_breakcluster(shaked_sol,shaked_val)
-                if not pos_movements: # only singeltons in current solution
+                if not pos_movements: # rare case: only singletons in current solution or non valid breaks possible resulted from bind function
                     if ILS and shaked_sol.number_biclusters>1: # try it again with move-vertex or join-bicluster
-                        k = np.random.randint(0,high=2)
+                        k = np.random.randint(3)
                         continue
                     else: break # GVNS case, no valid neighbour in break-bicluster-neighbourhood -> shaking is finished
                 break_movement=pos_movements[np.random.randint(len(pos_movements))]
@@ -418,7 +414,7 @@ def get_possible_movevertex(sol):
         beforeclust = 0
         while node not in sol.bicluster_set[beforeclust].nodes:
             beforeclust += 1
-        # collect every possible biclique for node ( not the same and no singelton of same partion)
+        # collect every possible biclique for node (not the same and no singelton of same partion)
         possible_aftercluster = []
         for i in range(sol.number_biclusters):
             biclust= sol.bicluster_set[i]
