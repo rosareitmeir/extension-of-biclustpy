@@ -157,17 +157,18 @@ def is_bi_clique(graph, num_rows):
     return graph.number_of_edges() == size_left * size_right
     
 def is_singleton(bi_cluster):
+    ''' returns true if and only if there is one node in the given bicluster'''
     return (len(bi_cluster[0]) == 0) or (len(bi_cluster[1]) == 0)
 
 # new Rosa
 def build_bicluster(nodes1,nodes2=None):
+    ''' returns a bi-transitive graph from nodes'''
     graph = nx.Graph()
     graph.add_nodes_from(nodes1)
     if nodes2!=None:
         graph.add_nodes_from(nodes2)
     graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in localsearch.V1] for y in [elem for elem in graph.nodes if elem in localsearch.V2])
     graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in localsearch.V2] for y in [elem for elem in graph.nodes if elem in localsearch.V1])
-    #check=is_bi_clique(graph,movement.num_rows)
     return graph
 
 
@@ -193,6 +194,7 @@ def are_singeltons_in_same_partion(biclust1,biclust2):
 
 # for break bicluster
 def is_no_valid_biclique(biclust1, biclust2):
+    '''returns true if and only if all nodes in the cluster are in the same partition'''
     if len(biclust1) > 1 and (all(is_row(x, localsearch.num_rows) for x in biclust1) or all(is_col(x, localsearch.num_rows) for x in biclust1)):
         return True
     if len(biclust2) > 1 and (all(is_row(x, localsearch.num_rows) for x in biclust2) or all(is_col(x, localsearch.num_rows) for x in biclust2)):

@@ -10,7 +10,6 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax):
     given weights of edges, intitialized bi-transtive graph and its objective value, minimal and maximal number of perturbations
     returns an optimized solution and its value
     '''
-
     initialized_solution= localsearch.Solution(weights, bi_transitive_subgrpah)
     # local search for initialized solution
     best_solution,best_value= localsearch.execute_VND(obj_val, initialized_solution)

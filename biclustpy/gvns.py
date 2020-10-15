@@ -17,7 +17,7 @@ def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax):
         better_sol_found=False
         while k <3:
             # shake current solution to escape local optima with fixed neighbourhood
-            shaked_sol,shaked_val = localsearch.shake_solution(nmin, nmax, best_solution, k)
+            shaked_sol,shaked_val = localsearch.shake_solution(nmin, nmax, best_solution, best_val,k)
             # descent phase : local search using VND
             VND_sol, VND_val=localsearch.execute_VND(shaked_val, shaked_sol)
             if VND_val < best_val:

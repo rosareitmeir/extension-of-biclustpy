@@ -153,10 +153,12 @@ def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two 
     sol.edit_matrix[index_moved_node][after_cluster_index] *= -1
 
     if moved_node< num_rows: # moved node  is an element of V1/row
-        partition2 = V2, rightorder=True
+        partition2 =list(V2)
+        rightorder=True
 
     else:
-        partition2=V1, rightorder=False
+        partition2= list(V1)
+        rightorder=False
 
     #entries for all nodes, which are in the other partition
     for node2 in partition2:
