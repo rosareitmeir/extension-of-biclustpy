@@ -39,11 +39,11 @@ def execute_NewRule(graph,weights,num_rows):
         # collapsing parallel edges to one edge
         if helpers.is_col(collapsed_node, num_rows):
             col_idx=[helpers.node_to_col(node,num_rows) for node in R]
-            collapsed_node = col_idx[0]
+            collapsed_node_idx = col_idx[0]
             # create accumulated edges
             collapsed_column= np.sum(weights[:,col_idx],axis=1)
-            weights[:,collapsed_node]=collapsed_column
-            removed_nodes[collapsed_node] = col_idx[1:]
+            weights[:,collapsed_node_idx]=collapsed_column
+            removed_nodes[collapsed_node] = R[1:]
         else:
             # create accumulated edges
             collapsed_row=np.sum(weights[R,:],axis=0)

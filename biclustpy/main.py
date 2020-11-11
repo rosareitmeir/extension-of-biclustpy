@@ -162,7 +162,7 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
                 if helpers.is_row(node, num_rows):
                     bi_cluster[0].append(node)
                 else:
-                    bi_cluster[1].append(helpers.node_to_col(node, num_rows))
+                    bi_cluster[1].append(node)
             bi_clusters.append(bi_cluster)
         else:
             # Rule 2 or New Rule
@@ -219,7 +219,7 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
                     if node in removed_nodes:
                         bi_cluster[0].extend(removed_nodes[node])
                 else:
-                    bi_cluster[1].append(helpers.node_to_col(node, num_rows))
+                    bi_cluster[1].append(node)
                     # adding removed nodes from New Rule or Rule 2
                     if node in removed_nodes:
                         bi_cluster[1].extend(removed_nodes[node])

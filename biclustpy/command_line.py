@@ -22,7 +22,13 @@ def main():
     
     weights = np.array(0)
     if args.load is not None:
-        weights = np.load(args.load)
+        if args.load.endswith(".npy"):
+            weights = np.load(args.load)
+        elif args.load.endswith(".tsv"):
+            weights= np.loadtxt(args.load, delimiter="\t")
+        elif args.load.endswith(".csv"):
+            weights= np.loadtxt(args.load, delimiter=",")
+
     
     if args.random is not None:
         np.random.seed(int(args.random[3]))
@@ -43,7 +49,6 @@ def main():
     algorithm.seed= args.grasp_options[2]
 
 
-    # NEW ROSA running with metaheuristic or not
     if args.metaheu is not None:
         metaheuristic = bp.Algorithm()
         metaheuristic.algorithm_name = args.metaheu
