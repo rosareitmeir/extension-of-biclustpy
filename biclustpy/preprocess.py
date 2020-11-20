@@ -1,8 +1,7 @@
-import copy
+
 from collections import defaultdict
 import numpy as np
-import networkx as nx
-import helpers
+from . import helpers
 
 def execute_Rule2(graph):
     # according to  Rule 2 on page 7

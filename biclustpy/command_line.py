@@ -1,5 +1,5 @@
 
-import main as bp
+from . import main as bp
 import numpy as np
 import argparse as ap
 
@@ -55,9 +55,9 @@ def main():
         metaheuristic.max_iter=args.metaheu_options[0]
         metaheuristic.nmin=args.metaheu_options[1]
         metaheuristic.nmax = args.metaheu_options[2]
-        bi_clusters, obj_val, is_optimal = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, metaheuristic)
+        bi_clusters, obj_val, is_optimal , time= bp.compute_bi_clusters(weights, preprocessing_method, algorithm, metaheuristic)
     else:
-        bi_clusters, obj_val, is_optimal = bp.compute_bi_clusters(weights, preprocessing_method, algorithm)
+        bi_clusters, obj_val, is_optimal, time = bp.compute_bi_clusters(weights, preprocessing_method, algorithm)
     
     if args.save is not None:
         instance = ""
@@ -65,7 +65,7 @@ def main():
             instance = args.load
         if args.random is not None:
             instance = "random (threshold=" + args.random[2] + ", seed=" + args.random[3] + ")"
-        bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal, instance)
+        bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal,time, instance)
 
 
 main()

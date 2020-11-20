@@ -1,7 +1,5 @@
-import networkx as nx
-
-import helpers
-import localsearch
+from . import helpers
+from . import localsearch
 
 
 def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax):

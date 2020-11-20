@@ -1,11 +1,11 @@
-import grasp
-import gvns
-import ils
-# before starting with: from .
-import helpers
-import ilp
-import ch
-import preprocess
+from . import grasp
+from . import gvns
+from . import ils
+from . import helpers
+from . import ilp
+from . import ch
+from . import preprocess
+import time
 
 class Algorithm:
     
@@ -138,6 +138,9 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
         float: Objective value of the obtained solution.
         bool: True if and only if the obtained solution is guaranteed to be optimal.
     """
+    # measure time
+    start_time= time.time()
+
     
     # Get dimension of the problem instance and build NetworkX graph.
     num_rows = weights.shape[0]
@@ -228,7 +231,8 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
 
             bi_clusters.append(bi_cluster)
         print("==============================================================================")
-    
+
+    execution_time= time.time()-start_time
     print("\n==============================================================================")
     print("Finished computation of bi-clusters.")
     print("------------------------------------------------------------------------------")
@@ -240,9 +244,9 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
     
     # Return the obtained bi-transitive subgraph, the objective value of the obtained solution, 
     # and a flag that indicates if the solution is guaranteed to be optimal.
-    return bi_clusters, obj_val, is_optimal 
+    return bi_clusters, obj_val, is_optimal , execution_time
     
-def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, instance = ""):
+def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, time, instance = ""):
     """Saves bi-clusters as XML file.
     
     Args:
@@ -253,7 +257,7 @@ def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, instance
         is_optimal (bool): Set to True if and only if the obtained solution is guaranteed to be optimal.
         instance (string): String that contains information about the problem instance.
     """
-    elem_tree = helpers.build_element_tree(bi_clusters, obj_val, is_optimal, instance)
+    elem_tree = helpers.build_element_tree(bi_clusters, obj_val, is_optimal,time, instance)
     xml_file = open(filename, "w")
     xml_file.write(helpers.prettify(elem_tree))
     xml_file.close()

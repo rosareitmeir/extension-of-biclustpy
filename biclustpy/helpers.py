@@ -2,7 +2,7 @@ import networkx as nx
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-import localsearch
+from . import localsearch
 
 
 def prettify(elem):
@@ -18,13 +18,14 @@ def prettify(elem):
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="\t")
     
-def build_element_tree(bi_clusters, obj_val, is_optimal, instance):
+def build_element_tree(bi_clusters, obj_val, is_optimal, time, instance):
     root = ET.Element("bi_clusters")
     root.set("num_bi_clusters", str(len(bi_clusters)))
     root.set("num_rows", str(sum([len(bi_cluster[0]) for bi_cluster in bi_clusters])))
     root.set("num_cols", str(sum([len(bi_cluster[1]) for bi_cluster in bi_clusters])))
     root.set("obj_val", str(obj_val))
     root.set("is_opt", str(is_optimal))
+    root.set("time", str(time))
     root.set("instance", instance)
     cluster_id = 0
     for bi_cluster in bi_clusters:
