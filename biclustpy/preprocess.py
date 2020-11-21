@@ -1,7 +1,7 @@
 
 from collections import defaultdict
 import numpy as np
-from . import helpers
+import helpers
 
 def execute_Rule2(graph):
     # according to  Rule 2 on page 7

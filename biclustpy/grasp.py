@@ -1,7 +1,8 @@
 import numpy as np
-from . import ch
-from . import localsearch
-from . import helpers
+import ch
+import localsearch
+
+import helpers
 
 def run(weights, subgrpah, maxiter,alpha,seed):
    """ Greedy Randomzed Adaptve Search Procedure

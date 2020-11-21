@@ -1,5 +1,5 @@
-from . import helpers
-from . import localsearch
+import helpers
+import localsearch
 
 
 def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax):

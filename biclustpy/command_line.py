@@ -1,5 +1,6 @@
 
-from . import main as bp
+#from .
+import main as bp
 import numpy as np
 import argparse as ap
 

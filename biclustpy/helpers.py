@@ -2,7 +2,7 @@ import networkx as nx
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-from . import localsearch
+import localsearch
 
 
 def prettify(elem):

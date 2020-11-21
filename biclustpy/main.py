@@ -1,10 +1,10 @@
-from . import grasp
-from . import gvns
-from . import ils
-from . import helpers
-from . import ilp
-from . import ch
-from . import preprocess
+import grasp
+import gvns
+import ils
+import helpers
+import ilp
+import ch
+import preprocess
 import time
 
 class Algorithm:

@@ -1,6 +1,7 @@
 import copy
 import itertools
-from . import helpers
+#from .
+import helpers
 import numpy as np
 # static variables for all obj of Solution
 weights=None

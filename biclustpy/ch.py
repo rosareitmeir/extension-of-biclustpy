@@ -1,6 +1,6 @@
 import networkx as nx
 from progress.bar import Bar
-from . import helpers
+import helpers
 import numpy as np
 import random
 

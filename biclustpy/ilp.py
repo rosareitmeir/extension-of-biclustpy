@@ -1,7 +1,7 @@
 import gurobipy as gp
 import networkx as nx
 from progress.bar import Bar
-from . import helpers
+import helpers
 
 def run(weights, subgraph, time_limit, tune):
     """Calls Gurobi to solve ILP formulation of the bi-cluster editing problem.
