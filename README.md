@@ -54,7 +54,6 @@ filename = "bi_clusters.xml"
 instance = "random instance with 30 rows and 40 columns"
 bp.save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, instance)
 ```
-
 ## Command Line Usage
 
 Upon installation, you can run `biclustpy` from the command line. Usage:
