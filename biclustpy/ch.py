@@ -28,9 +28,11 @@ def get_next_pair(queue, is_deleted, alpha, seed):
     random.seed(seed)
     return random.choice(candidates)
             
-        
 
-def run(weights, subgraph, alpha, seed):
+
+
+
+def run(weights, subgraph, alpha, seed, queue=None):
     """Suboptimally solves the bi-cluster editing problem via a constructive heuristic.
     
     Implements the heuristic CH suggested in: 
@@ -51,34 +53,17 @@ def run(weights, subgraph, alpha, seed):
     """
     
     #print("Subproblem is solved with CH.")
-    
+
     # Get rows and columns of the sub-problem.
     num_rows = weights.shape[0]
     rows = [node for node in subgraph.nodes if helpers.is_row(node, num_rows)]
     cols = [node for node in subgraph.nodes if helpers.is_col(node, num_rows)]
-    
-    # Compute g-values for greedily picking pairs of nodes.
-    bar = Bar("Computing g-values.", max = len(rows) * len(cols))
-    queue = []
-    for i in rows:
-        n2i = [j for l in subgraph.adj[i] for j in subgraph.adj[l]]
-        for k in cols:
-            n2k = [l for j in subgraph.adj[k] for l in subgraph.adj[j]]
-            g = weights[i, helpers.node_to_col(k, num_rows)]
-            g = g + sum([weights[i, helpers.node_to_col(l, num_rows)] for l in n2k if l != k])
-            g = g + sum([weights[j, helpers.node_to_col(k, num_rows)] for j in n2i if j != i])
-            g = g - sum([weights[i, helpers.node_to_col(l, num_rows)] for l in cols if weights[i, helpers.node_to_col(l, num_rows)] > 0])
-            g = g + sum([weights[i, helpers.node_to_col(l, num_rows)] for l in n2k if weights[i, helpers.node_to_col(l, num_rows)] > 0])
-            g = g - sum([weights[j, helpers.node_to_col(k, num_rows)] for j in rows if weights[j, helpers.node_to_col(k, num_rows)] > 0])
-            g = g + sum([weights[j, helpers.node_to_col(k, num_rows)] for j in n2i if weights[j, helpers.node_to_col(k, num_rows)] > 0])
-            queue.append(((i,k),g))
-            bar.next()
-    bar.finish()
-          
-    # Sort the queue of all pairs of nodes in decrasing order w.r.t. their g-values.
-    if alpha == 1:
-        queue.sort(key = lambda t: t[1], reverse = True)
-    
+
+    # calculate g-values
+    # for grasp to calculate g values only ones , not in every iteration
+    if queue == None:
+        queue= calculate_g_values(subgraph, weights, num_rows, alpha)
+
     # Construct the bi-transitive subgraph.
     #print("Constructing the bi-transitive subgraph ...")
     bi_transitive_subgraph = nx.Graph()
@@ -114,3 +99,38 @@ def run(weights, subgraph, alpha, seed):
                 
     # Return the obtained bi-transitive subgraph and the objective value.
     return bi_transitive_subgraph, obj_val, False
+
+
+def calculate_g_values(subgraph, weights, num_rows, alpha):
+    # Get rows and columns of the sub-problem.
+    rows = [node for node in subgraph.nodes if helpers.is_row(node, num_rows)]
+    cols = [node for node in subgraph.nodes if helpers.is_col(node, num_rows)]
+
+    # Compute g-values for greedily picking pairs of nodes.
+    bar = Bar("Computing g-values.", max=len(rows) * len(cols))
+    queue = []
+    for i in rows:
+        n2i = [j for l in subgraph.adj[i] for j in subgraph.adj[l]]
+        for k in cols:
+            n2k = [l for j in subgraph.adj[k] for l in subgraph.adj[j]]
+            g = weights[i, helpers.node_to_col(k, num_rows)]
+            g = g + sum([weights[i, helpers.node_to_col(l, num_rows)] for l in n2k if l != k])
+            g = g + sum([weights[j, helpers.node_to_col(k, num_rows)] for j in n2i if j != i])
+            g = g - sum([weights[i, helpers.node_to_col(l, num_rows)] for l in cols if
+                         weights[i, helpers.node_to_col(l, num_rows)] > 0])
+            g = g + sum([weights[i, helpers.node_to_col(l, num_rows)] for l in n2k if
+                         weights[i, helpers.node_to_col(l, num_rows)] > 0])
+            g = g - sum([weights[j, helpers.node_to_col(k, num_rows)] for j in rows if
+                         weights[j, helpers.node_to_col(k, num_rows)] > 0])
+            g = g + sum([weights[j, helpers.node_to_col(k, num_rows)] for j in n2i if
+                         weights[j, helpers.node_to_col(k, num_rows)] > 0])
+            queue.append(((i, k), g))
+            bar.next()
+    bar.finish()
+
+    # Sort the queue of all pairs of nodes in decrasing order w.r.t. their g-values.
+    if alpha == 1:
+        queue.sort(key=lambda t: t[1], reverse=True)
+
+    return(queue)
+

@@ -14,9 +14,11 @@ def run(weights, subgrpah, maxiter,alpha,seed):
    best_value = np.inf
    best_iter = 0
    cur_iter = 0
+   num_rows = weights.shape[0]
+   queue= ch.calculate_g_values(subgrpah,weights,num_rows, alpha)
    while cur_iter - best_iter <= maxiter:
        # construction phase : create solution using CH run-method with alpha>1 -> random choice of pairs
-       bi_transitive_subgrpah,value,optimal=ch.run(weights,subgrpah,alpha,seed)
+       bi_transitive_subgrpah,value,optimal=ch.run(weights,subgrpah,alpha,seed,queue)
        cur_solution=localsearch.Solution(weights, bi_transitive_subgrpah)
        # local search phase: VND executed for obtained solution
        improved_solution, value= localsearch.execute_VND(value, cur_solution)
