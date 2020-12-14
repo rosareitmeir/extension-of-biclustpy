@@ -3,7 +3,7 @@
 import main as bp
 import numpy as np
 import argparse as ap
-
+import csv
 def main():
     """Provides command line interface of biclustpy.
     """
@@ -12,6 +12,7 @@ def main():
     instance = parser.add_mutually_exclusive_group(required=True)
     instance.add_argument("--load", help="Load instance from .npy file.", metavar="input-file")
     instance.add_argument("--random", nargs=4, help="Randomly generate instance with num-rows rows and num-cols columns whose cells are of the form ((random value between 0 and 1) - threshold).", metavar=("num-rows", "num-cols", "threshold", "seed"))
+    parser.add_argument("--names", default=False, action="store_true", help="column and row names for instance is given.")
     parser.add_argument("--save", help="Save bi-clusters as XML file.", metavar="output-file")
     parser.add_argument("--alg", default="ILP", help="Employed algorithm. Default = ILP.", choices=["ILP", "CH","GRASP"])
     parser.add_argument("--metaheu", help="Employed meatheuristics.", choices=["ILS", "GVNS"])
@@ -22,11 +23,28 @@ def main():
     args = parser.parse_args()
     
     weights = np.array(0)
+    names={}
+
     if args.load is not None:
         if args.load.endswith(".npy"):
             weights = np.load(args.load)
         elif args.load.endswith(".tsv"):
-            weights= np.loadtxt(args.load, delimiter="\t")
+            if args.names:
+                with open(args.load) as f:
+                    reader = csv.reader(f, delimiter="\t")
+                    columns = next(reader)
+                    rownames=[]
+                    for row in reader:
+                        rownames.append(row[0])
+                    numrow= len(rownames)
+                    numcol= len(columns)
+                    names = dict(zip(range(numrow, numrow+ numcol), columns))
+                    names.update(dict(zip(range(0, len(rownames)), rownames)))
+
+                weights= np.loadtxt(args.load, delimiter="\t", skiprows=1,usecols=range(1,numcol))
+
+
+                
         elif args.load.endswith(".csv"):
             weights= np.loadtxt(args.load, delimiter=",")
 
@@ -66,6 +84,7 @@ def main():
         instance = ""
         if args.load is not None:
             instance = args.load
+
         if args.random is not None:
             instance = "random (threshold=" + args.random[2] + ", seed=" + args.random[3] + ")"
         bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal,time, instance)

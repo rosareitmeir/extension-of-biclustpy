@@ -246,7 +246,7 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
     # and a flag that indicates if the solution is guaranteed to be optimal.
     return bi_clusters, obj_val, is_optimal , execution_time
     
-def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, time, instance = ""):
+def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, time, instance = "", names=None):
     """Saves bi-clusters as XML file.
     
     Args:
@@ -257,7 +257,7 @@ def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, time, in
         is_optimal (bool): Set to True if and only if the obtained solution is guaranteed to be optimal.
         instance (string): String that contains information about the problem instance.
     """
-    elem_tree = helpers.build_element_tree(bi_clusters, obj_val, is_optimal,time, instance)
+    elem_tree = helpers.build_element_tree(bi_clusters, obj_val, is_optimal,time, instance, names)
     xml_file = open(filename, "w")
     xml_file.write(helpers.prettify(elem_tree))
     xml_file.close()
