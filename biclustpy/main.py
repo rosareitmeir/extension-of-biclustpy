@@ -6,6 +6,7 @@ import ilp
 import ch
 import preprocess
 import time
+import numpy as np
 
 class Algorithm:
     
@@ -36,6 +37,8 @@ class Algorithm:
         self.max_iter = 10
         self.nmin = 2
         self.nmax = 10
+        self.meta_time_limit= np.inf
+        self.grasp_time_limit= np.inf
     
     def use_ilp(self, time_limit = 60, tune = False):
         """Use the algorithm \"ILP\".
@@ -55,26 +58,27 @@ class Algorithm:
         self.ch_alpha = alpha
         self.seed = seed
 
-    # ROSA NEW
 
-    def use_GRASP(self,max_iter=10,alpha=0.7,seed=None):  # Greedy Randomized Adaptive Search Procedure
+    def use_GRASP(self,max_iter=10,alpha=0.7,seed=None,time_limit= np.inf):  # Greedy Randomized Adaptive Search Procedure
         """Use the algorithm \"GRASP\".
                 """
         self.algorithm_name="GRASP"
         self.grasp_alpha=alpha
         self.max_iter=max_iter
         self.seed = seed
+        self.grasp_time_limit=time_limit
     # metaheuristics
 
-    def use_GVNS(self,max_iter=20,nmin=2,nmax=10):  # General Variable Neighborhood Search (GVNS)
+    def use_GVNS(self,max_iter=20,nmin=2,nmax=10, time_limit= np.inf):  # General Variable Neighborhood Search (GVNS)
         """Use the algorithm \"GVNS\".
                 """
         self.algorithm_name="GVNS"
         self.max_iter = max_iter
         self.nmin = nmin
         self.nmax = nmax
+        self.meta_time_limit = time_limit
 
-    def use_ILS(self,max_iter=20,nmin=2,nmax=10):  # Iterated Local Search
+    def use_ILS(self,max_iter=20,nmin=2,nmax=10, time_limit= np.inf):  # Iterated Local Search
         """Use the algorithm \"ILS\".
                 """
         self.algorithm_name = "ILS"
@@ -101,15 +105,15 @@ class Algorithm:
             return ilp.run(weights, subgraph, self.ilp_time_limit, self.ilp_tune)
         elif self.algorithm_name == "CH":
             return ch.run(weights, subgraph, self.ch_alpha, self.seed)
-        #NEW ROSA
         elif self.algorithm_name == "GRASP":
-            return grasp.run(weights,subgraph,self.max_iter,self.grasp_alpha,self.seed)
+            return grasp.run(weights, subgraph, self.max_iter, self.grasp_alpha, self.seed, self.grasp_time_limit)
+        # metaheuristics
         elif self.algorithm_name == "GVNS":
-            return gvns.run(weights, subgraph,obj_val, self.max_iter,self.nmin,self.nmax)
+            return gvns.run(weights, subgraph,obj_val, self.max_iter,self.nmin,self.nmax, self.meta_time_limit)
         elif self.algorithm_name == "ILS":
-            return ils.run(weights, subgraph,obj_val,self.max_iter,self.nmin,self.nmax)
+            return ils.run(weights, subgraph,obj_val,self.max_iter,self.nmin,self.nmax, self.meta_time_limit)
         else:
-            raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\".")
+            raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\",\"GRASP\",\"ILS\",\"GVNS\" .")
     
     
 def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=None ):
