@@ -23,8 +23,7 @@ def main():
     args = parser.parse_args()
     
     weights = np.array(0)
-    names={}
-
+    names=None
     if args.load is not None:
         if args.load.endswith(".npy"):
             weights = np.load(args.load)
@@ -97,7 +96,7 @@ def main():
 
         if args.random is not None:
             instance = "random (threshold=" + args.random[2] + ", seed=" + args.random[3] + ")"
-        bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal,time, instance)
+        bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal,time, instance, names)
 
 
 main()
