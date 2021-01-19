@@ -42,6 +42,8 @@ def main():
 
                 weights= np.loadtxt(args.load, delimiter="\t", skiprows=1,usecols=range(1,numcol))
 
+            else:  weights= np.loadtxt(args.load, delimiter="\t")
+
 
                 
         elif args.load.endswith(".csv"):
