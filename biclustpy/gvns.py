@@ -26,7 +26,7 @@ def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax, timeout):
                 best_solution=VND_sol
                 best_val=VND_val
                 better_sol_found=True
-                k=1
+                k=0
             else: k+=1
         if better_sol_found:
             best_iter=cur_iter

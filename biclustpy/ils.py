@@ -31,7 +31,6 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
         elif VND_value >= best_value and cur_iter- best_iter< max_iter+1:
                 # bestsolution= bestsolution
                 cur_iter += 1
-                continue
 
         else :  # stop condition met
                 #bestsolution= bestsolution, no better solution in maximum of iterations found
