@@ -16,7 +16,7 @@ def main():
     parser.add_argument("--save", help="Save bi-clusters as XML file.", metavar="output-file")
     parser.add_argument("--alg", default="ILP", help="Employed algorithm. Default = ILP.", choices=["ILP", "CH","GRASP"])
     parser.add_argument("--metaheu", help="Employed meatheuristics.", choices=["ILS", "GVNS"])
-    parser.add_argument("--metaheu_options", nargs=4, type=int, default=[20, 2,10, None], help="Options for the metaheuristic ILS and GVNS: maximum number of iterations to find an improved solution, minimal and maximal number of pertubations, time limit in sec.", metavar=("max-iter", "nmin","nmax", "time limit"))
+    parser.add_argument("--metaheu_options", nargs=4, type=str, default=[20, 2,10, "inf"], help="Options for the metaheuristic ILS and GVNS: maximum number of iterations to find an improved solution, minimal and maximal number of pertubations, time limit in sec.", metavar=("max-iter", "nmin","nmax", "time limit"))
     parser.add_argument("--grasp_options", nargs=4, type=str, default=[30, 0.5,"None", "inf"], help="Options for the algorithm GRASP: maximum number of iterations to find best solution, alpha ( between 0 and 1) to sort pairs out w.r.t to their g-values,seed for random choice.", metavar=("max-iter", "alpha","seed", "time limit"))
     parser.add_argument("--ilp_options", nargs=2, type=int, default=[60, 0], help="Options for the algorithm ILP: time limit in second and flag that indicates whether model should be tuned before optimization.", metavar=("time-limit", "tune"))
     parser.add_argument("--preprocess", type=str, nargs=2, default=["New", "Rule"], help="preprocessing method: Rule 2 or default New Rule")
@@ -77,11 +77,11 @@ def main():
     if args.metaheu is not None:
         metaheuristic = bp.Algorithm()
         metaheuristic.algorithm_name = args.metaheu
-        metaheuristic.max_iter=args.metaheu_options[0]
-        metaheuristic.nmin = args.metaheu_options[1]
-        metaheuristic.nmax = args.metaheu_options[2]
-        if args.metaheu_options[3]  is not None:
-            metaheuristic.meta_time_limit = args.metaheu_options[3]
+        metaheuristic.max_iter=int(args.metaheu_options[0])
+        metaheuristic.nmin = int(args.metaheu_options[1])
+        metaheuristic.nmax = int(args.metaheu_options[2])
+        if args.metaheu_options[3]  != "inf":
+            metaheuristic.meta_time_limit = int(args.metaheu_options[3])
         else:
             metaheuristic.meta_time_limit = np.inf
 

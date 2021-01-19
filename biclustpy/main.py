@@ -85,7 +85,7 @@ class Algorithm:
         self.max_iter=max_iter
         self.nmin=nmin
         self.nmax=nmax
-
+        self.meta_time_limit = time_limit
 
 
             
