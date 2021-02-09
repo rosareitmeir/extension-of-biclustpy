@@ -39,6 +39,7 @@ class Algorithm:
         self.nmax = 10
         self.meta_time_limit= np.inf
         self.grasp_time_limit= np.inf
+        self.gval=None
 
     
     def use_ilp(self, time_limit = 60, tune = False):
@@ -52,7 +53,7 @@ class Algorithm:
         self.ilp_time_limit = time_limit
         self.ilp_tune = tune
     
-    def use_ch(self, alpha = 1.0, seed = None, loading=None, ):
+    def use_ch(self, alpha = 1.0, seed = None, loading=None):
         """Use the algorithm \"CH\".
         """
         self.algorithm_name = "CH"
@@ -105,9 +106,17 @@ class Algorithm:
         if self.algorithm_name == "ILP":
             return ilp.run(weights, subgraph, self.ilp_time_limit, self.ilp_tune)
         elif self.algorithm_name == "CH":
-            return ch.run(weights, subgraph, self.ch_alpha, self.seed)
+            gvalues=None
+            if self.gval!=None:
+                # find gvalues to corresponding subgraph
+                gvalues=helpers.find_matching_gvalues(subgraph.nodes, self.gval)
+            return ch.run(weights, subgraph, self.ch_alpha, self.seed, gvalues)
         elif self.algorithm_name == "GRASP":
-            return grasp.run(weights, subgraph, self.max_iter, self.grasp_alpha, self.seed, self.grasp_time_limit)
+            gvalues = None
+            if self.gval != None:
+                # find gvalues to corresponding subgraph
+                gvalues = helpers.find_matching_gvalues(subgraph.nodes, self.gval)
+            return grasp.run(weights, subgraph, self.max_iter, self.grasp_alpha, self.seed, self.grasp_time_limit, gvalues)
         # metaheuristics
         elif self.algorithm_name == "GVNS":
             return gvns.run(weights, subgraph,obj_val, self.max_iter,self.nmin,self.nmax, self.meta_time_limit)
@@ -117,7 +126,7 @@ class Algorithm:
             raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\",\"GRASP\",\"ILS\",\"GVNS\" .")
     
     
-def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False, metaheurisitc=None, given_gval=False ):
+def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False, metaheurisitc=None ):
     """Computes bi-clusters using bi-cluster editing.
     
     Given a matrix W = (w[i][k]) of weights of dimension n x m with positive and negative 

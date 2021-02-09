@@ -22,6 +22,8 @@ def main():
     parser.add_argument("--ilp_options", nargs=2, type=int, default=[60, 0], help="Options for the algorithm ILP: time limit in second and flag that indicates whether model should be tuned before optimization.", metavar=("time-limit", "tune"))
     parser.add_argument("--preprocess", type=str, nargs=2, default=["New", "Rule"], help="preprocessing method: Rule 2 or default New Rule")
     parser.add_argument("--calc_gvalues", default="", type=str, help="calculate and save gvalues, path to gvalue file")
+    parser.add_argument("--load_gvalues",  type=str, default=None,  help="Option for CH/GRASP: loading g-values ", metavar=("path to gvalue file"))
+
     args = parser.parse_args()
     
     weights = np.array(0)
@@ -78,8 +80,35 @@ def main():
     else:
         algorithm.grasp_time_limit = int(args.grasp_options[3])
 
+    # reading g-value file
+    all_gvalues=[]
+    if args.load_gvalues != None:
+        if names!= None:
+            inv_names= {v:k for k, v in names.items()}
+        file=open(args.load_gvalues, "r")
+        cur_gv_list=None
+        for line in file:
+            if line.startswith("#"):
+                if cur_gv_list!=None:
+                    all_gvalues.append(cur_gv_list)
+                cur_gv_list = []
+                continue
+            split=line.split("\t")
+            if names != None:
+                row=inv_names[split[0]]
+                col=inv_names[split[1]]
+            else:
+                row = int(split[0])
+                col = int(split[1])
+            gval=float(split[2])
+            cur_gv_list.append(( (row, col), gval))
+        file.close()
+        all_gvalues.append(cur_gv_list)
+        algorithm.gval= all_gvalues
 
 
+
+    # initialize metaheuristic
     if args.metaheu is not None:
         metaheuristic = bp.Algorithm()
         metaheuristic.algorithm_name = args.metaheu

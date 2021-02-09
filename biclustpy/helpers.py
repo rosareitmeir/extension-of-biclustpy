@@ -48,7 +48,7 @@ def write_gvalue_list(path, gvalues, names=None):
     file=open(path, "w+")
     n=1
     for subgraph in gvalues:
-        file.write("g-values for subgraph %d\r\n" % n)
+        file.write("#g-values for subgraph %d\r\n" % n)
         n+=1
         for ((i, k), g) in subgraph:
             if names==None:
@@ -56,6 +56,14 @@ def write_gvalue_list(path, gvalues, names=None):
             else:
                 file.write(names[i]+ "\t"+ names[k]+ "\t"+ str(g)+ "\n")
     file.close()
+
+
+def find_matching_gvalues(nodes, gvalues):
+    for list in gvalues:
+        i=list[0][0][0]
+        if i in nodes:
+            return list
+
 
 
 

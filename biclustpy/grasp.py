@@ -4,7 +4,7 @@ import localsearch
 import time
 import helpers
 
-def run(weights, subgrpah, maxiter,alpha,seed, timeout):
+def run(weights, subgrpah, maxiter,alpha,seed, timeout, queue=None):
    """ Greedy Randomzed Adaptve Search Procedure
    according to 4.6 (page 15)
    given weights of edges, a non bi-transitive subgraph, a number of maximal iterations to find a better solution and an alpha to select randomly pairs
@@ -15,7 +15,8 @@ def run(weights, subgrpah, maxiter,alpha,seed, timeout):
    best_iter = 0
    cur_iter = 0
    num_rows = weights.shape[0]
-   queue= ch.calculate_g_values(subgrpah,weights,num_rows, alpha)
+   if queue==None:
+    queue= ch.calculate_g_values(subgrpah,weights,num_rows, alpha)
    start = time.time()
    elapsed = 0
 
@@ -31,7 +32,6 @@ def run(weights, subgrpah, maxiter,alpha,seed, timeout):
             best_iter=cur_iter
        cur_iter +=1
        elapsed= time.time()- start
-       print(elapsed)
    grasp_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
    return grasp_subgraph, best_value, False
 
