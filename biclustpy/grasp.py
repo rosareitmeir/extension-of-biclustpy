@@ -31,7 +31,7 @@ def run(weights, subgrpah, maxiter,alpha,seed, timeout):
             best_iter=cur_iter
        cur_iter +=1
        elapsed= time.time()- start
-
+       print(elapsed)
    grasp_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
    return grasp_subgraph, best_value, False
 

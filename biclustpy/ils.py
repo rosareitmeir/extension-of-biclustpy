@@ -37,6 +37,7 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
                 stopcond=True
 
         elapsed= time.time()-start
+
     # create optimized subgraph from best solution bicluster set and return it
     optimized_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
     return optimized_subgraph ,best_value, False

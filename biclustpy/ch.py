@@ -128,7 +128,7 @@ def calculate_g_values(subgraph, weights, num_rows, alpha):
             bar.next()
     bar.finish()
 
-    # Sort the queue of all pairs of nodes in decrasing order w.r.t. their g-values.
+    # Sort the queue of all pairs of nodes in decreasing order w.r.t. their g-values.
     if alpha == 1:
         queue.sort(key=lambda t: t[1], reverse=True)
 

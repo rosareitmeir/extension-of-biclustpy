@@ -39,6 +39,7 @@ class Algorithm:
         self.nmax = 10
         self.meta_time_limit= np.inf
         self.grasp_time_limit= np.inf
+
     
     def use_ilp(self, time_limit = 60, tune = False):
         """Use the algorithm \"ILP\".
@@ -51,7 +52,7 @@ class Algorithm:
         self.ilp_time_limit = time_limit
         self.ilp_tune = tune
     
-    def use_ch(self, alpha = 1.0, seed = None):
+    def use_ch(self, alpha = 1.0, seed = None, loading=None, ):
         """Use the algorithm \"CH\".
         """
         self.algorithm_name = "CH"
@@ -116,7 +117,7 @@ class Algorithm:
             raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\",\"GRASP\",\"ILS\",\"GVNS\" .")
     
     
-def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=None ):
+def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False, metaheurisitc=None, given_gval=False ):
     """Computes bi-clusters using bi-cluster editing.
     
     Given a matrix W = (w[i][k]) of weights of dimension n x m with positive and negative 
@@ -202,6 +203,11 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
         n = len([node for node in subgraph.nodes if helpers.is_row(node, num_rows)])
         m = len([node for node in subgraph.nodes if helpers.is_col(node, num_rows)])
         print("Dimension: " + str(n) + " x " + str(m))
+        all_gvalues=[]
+        if calc_gv:
+            gvalues= ch.calculate_g_values(subgraph, weights, num_rows, 1)
+            all_gvalues.append(gvalues)
+            continue
         bi_transitive_subgraph, local_obj_val, local_is_optimal = algorithm.run(weights, subgraph)
 
         # improve solution by chosen metaheuristic: GVNS or ILS
@@ -235,6 +241,8 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, metaheurisitc=
 
             bi_clusters.append(bi_cluster)
         print("==============================================================================")
+    if calc_gv:
+        return(all_gvalues)
 
     execution_time= time.time()-start_time
     print("\n==============================================================================")

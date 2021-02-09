@@ -3,6 +3,7 @@
 import main as bp
 import numpy as np
 import argparse as ap
+import helpers as help
 import csv
 def main():
     """Provides command line interface of biclustpy.
@@ -20,6 +21,7 @@ def main():
     parser.add_argument("--grasp_options", nargs=4, type=str, default=[30, 0.5,"None", "inf"], help="Options for the algorithm GRASP: maximum number of iterations to find best solution, alpha ( between 0 and 1) to sort pairs out w.r.t to their g-values,seed for random choice.", metavar=("max-iter", "alpha","seed", "time limit"))
     parser.add_argument("--ilp_options", nargs=2, type=int, default=[60, 0], help="Options for the algorithm ILP: time limit in second and flag that indicates whether model should be tuned before optimization.", metavar=("time-limit", "tune"))
     parser.add_argument("--preprocess", type=str, nargs=2, default=["New", "Rule"], help="preprocessing method: Rule 2 or default New Rule")
+    parser.add_argument("--calc_gvalues", default="", type=str, help="calculate and save gvalues, path to gvalue file")
     args = parser.parse_args()
     
     weights = np.array(0)
@@ -76,6 +78,8 @@ def main():
     else:
         algorithm.grasp_time_limit = int(args.grasp_options[3])
 
+
+
     if args.metaheu is not None:
         metaheuristic = bp.Algorithm()
         metaheuristic.algorithm_name = args.metaheu
@@ -88,8 +92,13 @@ def main():
             metaheuristic.meta_time_limit = np.inf
 
         bi_clusters, obj_val, is_optimal , time = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, metaheuristic)
-    else:
+    elif args.calc_gvalues=="":
         bi_clusters, obj_val, is_optimal, time = bp.compute_bi_clusters(weights, preprocessing_method, algorithm)
+    else:
+        # calc g-values
+        all_gvalues= bp.compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=True)
+        help.write_gvalue_list(args.calc_gvalues, all_gvalues, names)
+
     
     if args.save is not None:
         instance = ""

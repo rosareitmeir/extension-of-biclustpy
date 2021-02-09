@@ -43,7 +43,22 @@ def build_element_tree(bi_clusters, obj_val, is_optimal, time, instance, names=N
             columns.text = " ".join([str(col+1) for col in bi_cluster[1]])
         cluster_id = cluster_id + 1
     return root
-    
+
+def write_gvalue_list(path, gvalues, names=None):
+    file=open(path, "w+")
+    n=1
+    for subgraph in gvalues:
+        file.write("g-values for subgraph %d\r\n" % n)
+        n+=1
+        for ((i, k), g) in subgraph:
+            if names==None:
+                file.write(str(i)+ "\t"+ str(k)+ "\t"+ str(g)+ "\n")
+            else:
+                file.write(names[i]+ "\t"+ names[k]+ "\t"+ str(g)+ "\n")
+    file.close()
+
+
+
 def col_to_node(col, num_rows):
     """Returns node ID of a column in the instance.
     
