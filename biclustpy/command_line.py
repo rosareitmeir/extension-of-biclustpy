@@ -122,7 +122,7 @@ def main():
 
         bi_clusters, obj_val, is_optimal , time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, False, metaheuristic)
     elif args.calc_gvalues=="":
-        bi_clusters, obj_val, is_optimal, time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method,False, algorithm)
+        bi_clusters, obj_val, is_optimal, time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, False)
     else:
         # calc g-values
         all_gvalues= bp.compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=True)
