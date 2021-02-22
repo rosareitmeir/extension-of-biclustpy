@@ -88,7 +88,7 @@ def main():
         file=open(args.load_gvalues, "r")
         cur_gv_list=None
         for line in file:
-            if line.startswith("#"):
+            if line.startswith("#") or line.startswith("g-values"):
                 if cur_gv_list!=None:
                     all_gvalues.append(cur_gv_list)
                 cur_gv_list = []
@@ -120,9 +120,9 @@ def main():
         else:
             metaheuristic.meta_time_limit = np.inf
 
-        bi_clusters, obj_val, is_optimal , time = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, metaheuristic)
+        bi_clusters, obj_val, is_optimal , time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, False, metaheuristic)
     elif args.calc_gvalues=="":
-        bi_clusters, obj_val, is_optimal, time = bp.compute_bi_clusters(weights, preprocessing_method, algorithm)
+        bi_clusters, obj_val, is_optimal, time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method,False, algorithm)
     else:
         # calc g-values
         all_gvalues= bp.compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=True)
@@ -136,7 +136,10 @@ def main():
 
         if args.random is not None:
             instance = "random (threshold=" + args.random[2] + ", seed=" + args.random[3] + ")"
-        bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal,time, instance, names)
+        if len(metaheu_times)!=None:
+            bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal,time, instance, names, times=metaheu_times)
+        else:
+            bp.save_bi_clusters_as_xml(args.save, bi_clusters, obj_val, is_optimal,time, instance, names)
 
 
 main()

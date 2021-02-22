@@ -9,6 +9,7 @@ def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax, timeout):
     returns an optimized solution and its value
     '''
     best_solution= localsearch.Solution(weights, bi_transitive_subgrpah)
+    time_of_best=0
     best_val=cur_val
     best_iter=0
     cur_iter=0
@@ -26,6 +27,7 @@ def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax, timeout):
                 best_solution=VND_sol
                 best_val=VND_val
                 better_sol_found=True
+                time_of_best=time.time()-start
                 k=0
             else: k+=1
         if better_sol_found:
@@ -34,4 +36,4 @@ def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax, timeout):
         elapsed= time.time() -start
 
     optimized_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
-    return optimized_subgraph,best_val,False
+    return optimized_subgraph,best_val,False, time_of_best

@@ -202,8 +202,9 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
     # Also compute the objective value and a flag that indicates whether the
     # obtained solution is guaranteed to be optimal.
     obj_val = 0
-    is_optimal = True 
+    is_optimal = True
     counter = 0
+    metaheu_times=[]
     for subgraph in subgraphs:
         counter = counter + 1
         print("\n==============================================================================")
@@ -217,13 +218,16 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
             gvalues= ch.calculate_g_values(subgraph, weights, num_rows, 1)
             all_gvalues.append(gvalues)
             continue
-        bi_transitive_subgraph, local_obj_val, local_is_optimal = algorithm.run(weights, subgraph)
-
+        bi_transitive_subgraph, local_obj_val, local_is_optimal, time_till_best = algorithm.run(weights, subgraph)
         # improve solution by chosen metaheuristic: GVNS or ILS
         # returns improved graph and its objective value 
         if metaheurisitc != None:
             print("Optimizing constructed bi-transitive subgraph with "+ metaheurisitc.algorithm_name+".")
-            bi_transitive_subgraph, local_obj_val, local_is_optimal = metaheurisitc.run(weights, bi_transitive_subgraph, local_obj_val)
+            bi_transitive_subgraph, local_obj_val, local_is_optimal, time_till_best = metaheurisitc.run(weights, bi_transitive_subgraph, local_obj_val)
+
+        #GRASP or metaheuritics
+        if time_till_best!=None:
+            metaheu_times.append(time_till_best)
 
         obj_val = obj_val + local_obj_val
         is_optimal = is_optimal and local_is_optimal
@@ -265,9 +269,9 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
     
     # Return the obtained bi-transitive subgraph, the objective value of the obtained solution, 
     # and a flag that indicates if the solution is guaranteed to be optimal.
-    return bi_clusters, obj_val, is_optimal , execution_time
+    return bi_clusters, obj_val, is_optimal , execution_time, metaheu_times
     
-def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, time, instance = "", names=None):
+def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, time, instance = "", names=None, times=None):
     """Saves bi-clusters as XML file.
     
     Args:
@@ -278,7 +282,7 @@ def save_bi_clusters_as_xml(filename, bi_clusters, obj_val, is_optimal, time, in
         is_optimal (bool): Set to True if and only if the obtained solution is guaranteed to be optimal.
         instance (string): String that contains information about the problem instance.
     """
-    elem_tree = helpers.build_element_tree(bi_clusters, obj_val, is_optimal,time, instance, names)
+    elem_tree = helpers.build_element_tree(bi_clusters, obj_val, is_optimal,time, instance, names, times)
     xml_file = open(filename, "w")
     xml_file.write(helpers.prettify(elem_tree))
     xml_file.close()

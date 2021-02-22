@@ -98,7 +98,7 @@ def run(weights, subgraph, alpha, seed, queue=None):
                 obj_val = obj_val + abs(weights[i, helpers.node_to_col(k, num_rows)])
                 
     # Return the obtained bi-transitive subgraph and the objective value.
-    return bi_transitive_subgraph, obj_val, False
+    return bi_transitive_subgraph, obj_val, False, None
 
 
 def calculate_g_values(subgraph, weights, num_rows, alpha):

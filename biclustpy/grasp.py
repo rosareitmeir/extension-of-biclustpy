@@ -12,6 +12,7 @@ def run(weights, subgrpah, maxiter,alpha,seed, timeout, queue=None):
    """
    best_solution = None
    best_value = np.inf
+   time_of_best=0
    best_iter = 0
    cur_iter = 0
    num_rows = weights.shape[0]
@@ -29,11 +30,12 @@ def run(weights, subgrpah, maxiter,alpha,seed, timeout, queue=None):
        if value < best_value:
             best_solution= improved_solution
             best_value=value
+            time_of_best=time.time()-start
             best_iter=cur_iter
        cur_iter +=1
        elapsed= time.time()- start
    grasp_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
-   return grasp_subgraph, best_value, False
+   return grasp_subgraph, best_value, False, time_of_best
 
 
 

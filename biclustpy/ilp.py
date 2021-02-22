@@ -84,4 +84,4 @@ def run(weights, subgraph, time_limit, tune):
     # Return the solution.
     obj_val = model.objVal + constant
     is_optimal = (model.getAttr(gp.GRB.Attr.Status) == 2)
-    return bi_transitive_subgraph, obj_val, is_optimal
+    return bi_transitive_subgraph, obj_val, is_optimal, None

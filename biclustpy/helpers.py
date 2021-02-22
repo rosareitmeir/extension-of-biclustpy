@@ -18,7 +18,7 @@ def prettify(elem):
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="\t")
     
-def build_element_tree(bi_clusters, obj_val, is_optimal, time, instance, names=None):
+def build_element_tree(bi_clusters, obj_val, is_optimal, time, instance, names=None, times=None):
     root = ET.Element("bi_clusters")
     root.set("num_bi_clusters", str(len(bi_clusters)))
     root.set("num_rows", str(sum([len(bi_cluster[0]) for bi_cluster in bi_clusters])))
@@ -27,12 +27,15 @@ def build_element_tree(bi_clusters, obj_val, is_optimal, time, instance, names=N
     root.set("is_opt", str(is_optimal))
     root.set("time", str(time))
     root.set("instance", instance)
+    if times != None:
+        root.set("time_till_optimization", ' '.join(map(str, times)))
     cluster_id = 0
     for bi_cluster in bi_clusters:
         child = ET.SubElement(root, "bi_cluster")
         child.set("id", "_" + str(cluster_id))
         child.set("num_rows", str(len(bi_cluster[0])))
         child.set("num_cols", str(len(bi_cluster[1])))
+
         rows = ET.SubElement(child, "rows")
         columns = ET.SubElement(child, "cols")
         if names != None:
