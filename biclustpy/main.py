@@ -160,7 +160,7 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
     num_rows = weights.shape[0]
     num_cols = weights.shape[1]
     graph = helpers.build_graph_from_weights(weights, range(num_rows + num_cols))
-    
+    print("graph constructed")
     # Initialize the return variable.
     bi_clusters = []
     # save removed nodes from Rule 2 or New Rule to add them to final solution

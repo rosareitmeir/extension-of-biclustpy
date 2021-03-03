@@ -10,7 +10,6 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
     '''
 
     initialized_solution= localsearch.Solution(weights, bi_transitive_subgrpah)
-    # local search for initialized solution
     best_solution,best_value= localsearch.execute_VND(obj_val, initialized_solution)
     time_to_best=0
     best_iter=0
@@ -39,7 +38,6 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
                 stopcond=True
 
         elapsed= time.time()-start
-
     # create optimized subgraph from best solution bicluster set and return it
     optimized_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
     return optimized_subgraph ,best_value, False, time_to_best

@@ -198,7 +198,6 @@ def build_bicluster(nodes1,nodes2=None):
     if nodes2!=None:
         graph.add_nodes_from(nodes2)
     graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in localsearch.V1] for y in [elem for elem in graph.nodes if elem in localsearch.V2])
-    graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in localsearch.V2] for y in [elem for elem in graph.nodes if elem in localsearch.V1])
     return graph
 
 
@@ -231,3 +230,16 @@ def is_no_valid_biclique(biclust1, biclust2):
         return True
     return False
 
+
+def find_possible_biclusters(bicluster_set,number_biclusters, num_rows):
+    pos_after_cluster_V1 = list(range(number_biclusters))
+    pos_after_cluster_V2 = list(range(number_biclusters))
+    for i in range(number_biclusters):
+        nodes=list(bicluster_set[i].nodes)
+        if len(nodes) == 1:
+            if is_row(nodes[0], num_rows):
+                pos_after_cluster_V1.remove(i)
+            else:
+                pos_after_cluster_V2.remove(i)
+
+    return pos_after_cluster_V1, pos_after_cluster_V2
