@@ -98,7 +98,7 @@ def execute_VND(curval, sol):
         elif k==1:
             # find best neighbour in the neighbourhood join bicluster
             neighbour_val, neighbour=find_best_join_bicluster(VND_val, VNDsolution)
-    
+
             if neighbour_val< VND_val:
                 changed=True
                 VND_val=neighbour_val
@@ -114,7 +114,6 @@ def execute_VND(curval, sol):
                 # update edit matrix and bicluster set : remove broken bicluster and add the two new ones
                 changed = True
                 update_break_bicluster(neighbour,VNDsolution)
-
         # for all three neighbourhoods:
         if changed: k=0
         else : k+=1
@@ -260,11 +259,16 @@ def update_join_bicluster(neighbour, sol):
     sol.edit_matrix=np.append(sol.edit_matrix, joined_biclust, axis=1)
 
     # update bicluster set
-    join_biclust= nx.compose(biclust1, biclust2)
-    join_biclust.add_edges_from((x,y) for x in [e for e in join_biclust.nodes if e in V1] for y in [e for e in join_biclust.nodes if e in V2])
-    sol.bicluster_set.append(join_biclust)
+    joined_biclust=nx.Graph()
+    joined_biclust.add_nodes_from(biclust1.nodes)
+    joined_biclust.add_nodes_from(biclust2.nodes)
+    nodes_v1= [e for e in joined_biclust.nodes if helpers.is_row(e,num_rows) ]
+    nodes_v2= [e for e in joined_biclust.nodes if helpers.is_col(e,num_rows) ]
+    joined_biclust.add_edges_from((x,y) for x in nodes_v1 for y in nodes_v2)
+
     sol.bicluster_set.remove(biclust1)
     sol.bicluster_set.remove(biclust2)
+    sol.bicluster_set.append(joined_biclust)
     sol.number_biclusters -=1
 
 
@@ -335,6 +339,7 @@ def update_break_bicluster(neighbour, sol):
     col_B2 = build_cluster_column(col_B2, True, biclust2, biclust1, broken_clust_idx, sol)
     col_B2 = build_cluster_column(col_B2, False, biclust2, biclust1, broken_clust_idx, sol)
 
+
     sol.edit_matrix= np.append(sol.edit_matrix, col_B1, axis=1)
     sol.edit_matrix=np.append(sol.edit_matrix, col_B2, axis=1)
     sol.edit_matrix=np.delete(sol.edit_matrix, broken_clust_idx, 1)
@@ -351,16 +356,20 @@ def update_break_bicluster(neighbour, sol):
 
 def build_cluster_column(column, rightorder, biclust1, biclust2, broken_clust_idx, sol):
     if rightorder:
-        partion1=V1; partion2=V2
+        partion1=V1
+        nodes_part2_bic2 = [x for x in biclust2 if helpers.is_col(x, num_rows)]
     else:
-        partion1=V2; partion2=V1
+        partion1=V2;
+        nodes_part2_bic2= [x for x in biclust2 if helpers.is_row(x, num_rows)]
+
 
     # calculations according to page 12
+
     for node1 in partion1:
         node1_index=sol.node_to_matrix[node1]
-        #sum over all nodes € V2 and € biclust2(=B'')
+        #sum over all nodes not € partion1 and € biclust2(=B'')
         sum=0
-        for node2 in [x for x in partion2 if x in biclust2]:
+        for node2 in nodes_part2_bic2:
             sum += get_weight(rightorder, node1, node2)
 
         entry_n1_broken_biclust= sol.edit_matrix[node1_index][broken_clust_idx] # M(v,B)
@@ -398,7 +407,6 @@ def shake_solution(nmin, nmax, inputsol, before_val, k=None):
             shaked_val = shaked_val + shaked_sol.edit_matrix[node_idx][after_clust] + shaked_sol.edit_matrix[node_idx][before_clust]
             # update edit matrix and bicluster set of the solution
             update_move_vertex(neighbour,shaked_sol)
-
         # join bicluster
         elif k==1 and shaked_sol.number_biclusters>1:
             # choosing randomly two biclusters
@@ -413,13 +421,14 @@ def shake_solution(nmin, nmax, inputsol, before_val, k=None):
                 random_movement=get_random_breakcluster(shaked_sol,shaked_val)
                 if random_movement == None: # rare case: only singletons in current solution or non valid breaks possible resulted from bind function
                     if ILS and shaked_sol.number_biclusters>1: # try it again with move-vertex or join-bicluster
-                        k = np.random.randint(3)
+                        k = np.random.randint(2) # k= 0 or 1
                         continue
                     else: break # GVNS case, no valid neighbour in break-bicluster-neighbourhood -> shaking is finished
 
                 shaked_val= random_movement[0]
                 neighbour=random_movement[1]
                 update_break_bicluster(neighbour,shaked_sol)
+
         else: break # case GVNS and no possible neighbour in the fixed neighbourhood move-vertex/join-cluster -> shaking is finished
         if ILS:
             k=np.random.randint(3)

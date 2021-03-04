@@ -197,7 +197,9 @@ def build_bicluster(nodes1,nodes2=None):
     graph.add_nodes_from(nodes1)
     if nodes2!=None:
         graph.add_nodes_from(nodes2)
-    graph.add_edges_from((x,y) for x in [elem for elem in graph.nodes if elem in localsearch.V1] for y in [elem for elem in graph.nodes if elem in localsearch.V2])
+    V1_nodes= [elem for elem in graph.nodes if is_row(elem,localsearch.num_rows)]
+    V2_nodes= [elem for elem in graph.nodes if is_col(elem,localsearch.num_rows)]
+    graph.add_edges_from((x,y) for x in V1_nodes for y in V2_nodes)
     return graph
 
 
