@@ -125,8 +125,8 @@ def main():
         bi_clusters, obj_val, is_optimal, time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, False)
     else:
         # calc g-values
-        all_gvalues= bp.compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=True)
-        help.write_gvalue_list(args.calc_gvalues, all_gvalues, names)
+        all_gvalues, times= bp.compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=True)
+        help.write_gvalue_list(args.calc_gvalues, all_gvalues, times,  names)
 
     
     if args.save is not None:

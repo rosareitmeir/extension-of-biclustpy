@@ -1,5 +1,6 @@
 import copy
 import itertools
+import time
 #from .
 import helpers
 import numpy as np
@@ -87,6 +88,7 @@ def execute_VND(curval, sol):
         # move vertex
         if k==0:
             # find best neighbour in the neighbourhood move vertex
+            start=time.time()
             neighbour_val,neighbour=find_best_move_vertex(VND_val, VNDsolution)
 
             if neighbour_val<VND_val: #new better solution found
@@ -94,9 +96,11 @@ def execute_VND(curval, sol):
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set: remove moved_vertex and add it to the other bicluster
                 update_move_vertex(neighbour,VNDsolution)
+            print("finished with move vertex: " +str(time.time()-start))
         # join bicluster
         elif k==1:
             # find best neighbour in the neighbourhood join bicluster
+            start=time.time()
             neighbour_val, neighbour=find_best_join_bicluster(VND_val, VNDsolution)
 
             if neighbour_val< VND_val:
@@ -104,16 +108,19 @@ def execute_VND(curval, sol):
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set : remove both biclusters and add new joined one
                 update_join_bicluster(neighbour,VNDsolution)
+            print("finished with join: " +str(time.time()-start))
 
         # break bicluster
         else: #k==2
             # find best neighbour in the neighbourhood break bicluster
+            start=time.time()
             neighbour_val, neighbour=find_best_break_bicluster(VND_val, VNDsolution)
             if neighbour_val< VND_val:
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set : remove broken bicluster and add the two new ones
                 changed = True
                 update_break_bicluster(neighbour,VNDsolution)
+            print("finished with break: " +str(time.time()-start))
         # for all three neighbourhoods:
         if changed: k=0
         else : k+=1
@@ -125,6 +132,8 @@ def find_best_move_vertex(curval, sol): # curval is value of the current solutio
     bestval= np.inf
     bestneighbour=None
     pos_after_clust_V1, pos_after_clust_V2= helpers.find_possible_biclusters(sol.bicluster_set, sol.number_biclusters, num_rows)
+    print("number of clusters: " + str(len(pos_after_clust_V1))+ "\t"+str(len(pos_after_clust_V2)) )
+
     for i in range(sol.number_biclusters): # loop through every bicluster
         for node in sol.bicluster_set[i].nodes: # every node in this bicluster
             matrix_index= sol.node_to_matrix[node]

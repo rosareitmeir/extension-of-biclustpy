@@ -47,11 +47,12 @@ def build_element_tree(bi_clusters, obj_val, is_optimal, time, instance, names=N
         cluster_id = cluster_id + 1
     return root
 
-def write_gvalue_list(path, gvalues, names=None):
+def write_gvalue_list(path, gvalues, time, names=None):
     file=open(path, "w+")
     n=1
+    file.write("#g-values total time "+ str(time)+ "\n")
     for subgraph in gvalues:
-        file.write("#g-values for subgraph %d\r\n" % n)
+        file.write("#g-values for subgraph %d \r\n" % n)
         n+=1
         for ((i, k), g) in subgraph:
             if names==None:

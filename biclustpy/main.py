@@ -214,9 +214,13 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
         m = len([node for node in subgraph.nodes if helpers.is_col(node, num_rows)])
         print("Dimension: " + str(n) + " x " + str(m))
         all_gvalues=[]
+        gvalue_time=0.00
         if calc_gv:
+            start=time.time()
             gvalues= ch.calculate_g_values(subgraph, weights, num_rows, 1)
+            calc_time=time.time()-start
             all_gvalues.append(gvalues)
+            gvalue_time +=calc_time
             continue
         bi_transitive_subgraph, local_obj_val, local_is_optimal, time_till_best = algorithm.run(weights, subgraph)
         # improve solution by chosen metaheuristic: GVNS or ILS
@@ -255,7 +259,7 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
             bi_clusters.append(bi_cluster)
         print("==============================================================================")
     if calc_gv:
-        return(all_gvalues)
+        return(all_gvalues, gvalue_time)
 
     execution_time= time.time()-start_time
     print("\n==============================================================================")
