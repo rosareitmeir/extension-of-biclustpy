@@ -10,15 +10,18 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
     '''
 
     initialized_solution= localsearch.Solution(weights, bi_transitive_subgrpah)
+    start = time.time()
+    time_to_best =0
     best_solution,best_value= localsearch.execute_VND(obj_val, initialized_solution)
-    time_to_best=0
+    if best_value != obj_val:
+        time_to_best = time.time()-start
     best_iter=0
     cur_iter=0
     stopcond=False
 
-    start = time.time()
-    elapsed = 0
 
+    elapsed = 0
+    print(str(obj_val))
     while not stopcond and elapsed <timeout:
         shaked_solution,shaked_value=localsearch.shake_solution(nmin, nmax, best_solution, best_value, k=None)
         VND_solution,VND_value= localsearch.execute_VND(shaked_value, shaked_solution)
@@ -28,6 +31,7 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
                 best_solution=VND_solution
                 best_value=VND_value
                 time_to_best=  time.time()-start
+                print("hello")
                 cur_iter += 1
         elif VND_value >= best_value and cur_iter- best_iter< max_iter+1:
                 # bestsolution= bestsolution
