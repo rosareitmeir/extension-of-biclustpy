@@ -2,8 +2,10 @@ import grasp
 import gvns
 import ils
 import helpers
+import localsearch
 import ilp
 import ch
+import randominitialization
 import preprocess
 import time
 import numpy as np
@@ -40,6 +42,7 @@ class Algorithm:
         self.meta_time_limit= np.inf
         self.grasp_time_limit= np.inf
         self.gval=None
+        self.num_init= 20
 
     
     def use_ilp(self, time_limit = 60, tune = False):
@@ -89,9 +92,12 @@ class Algorithm:
         self.nmax=nmax
         self.meta_time_limit = time_limit
 
+    def use_RANDOM(self, num_init=20):
+        self.algorithm_name="RANDOM"
+        self.num_init=num_init
 
             
-    def run(self, weights, subgraph, obj_val=None):
+    def run(self, weights, subgraph, obj_val=None, metaheuristic=None):
         """Runs the selected algorithm on a given subgraph.
         
         Args:
@@ -111,6 +117,8 @@ class Algorithm:
                 # find gvalues to corresponding subgraph
                 gvalues=helpers.find_matching_gvalues(subgraph.nodes, self.gval)
             return ch.run(weights, subgraph, self.ch_alpha, self.seed, gvalues)
+        elif self.algorithm_name == "RANDOM":
+            return randominitialization.run(weights,subgraph, self.num_init, metaheuristic)
         elif self.algorithm_name == "GRASP":
             gvalues = None
             if self.gval != None:
@@ -118,12 +126,14 @@ class Algorithm:
                 gvalues = helpers.find_matching_gvalues(subgraph.nodes, self.gval)
             return grasp.run(weights, subgraph, self.max_iter, self.grasp_alpha, self.seed, self.grasp_time_limit, gvalues)
         # metaheuristics
+        elif self.algorithm_name =="VND":
+            return localsearch.run_VND(weights, subgraph, obj_val)
         elif self.algorithm_name == "GVNS":
             return gvns.run(weights, subgraph,obj_val, self.max_iter,self.nmin,self.nmax, self.meta_time_limit)
         elif self.algorithm_name == "ILS":
             return ils.run(weights, subgraph,obj_val,self.max_iter,self.nmin,self.nmax, self.meta_time_limit)
         else:
-            raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\",\"GRASP\",\"ILS\",\"GVNS\" .")
+            raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\",\"GRASP\",\"ILS\",\"GVNS\", \"RANDOM\" .")
     
     
 def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False, metaheurisitc=None ):
@@ -222,7 +232,7 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
             all_gvalues.append(gvalues)
             gvalue_time +=calc_time
             continue
-        bi_transitive_subgraph, local_obj_val, local_is_optimal, time_till_best = algorithm.run(weights, subgraph)
+        bi_transitive_subgraph, local_obj_val, local_is_optimal, time_till_best = algorithm.run(weights, subgraph, obj_val=None, metaheuristic=metaheurisitc)
         # improve solution by chosen metaheuristic: GVNS or ILS
         # returns improved graph and its objective value 
         if metaheurisitc != None:

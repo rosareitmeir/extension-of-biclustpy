@@ -75,6 +75,10 @@ def get_weight(rightorder, node1, node2):
         return weights[node2][colID];
 
 
+def run_VND(weights, subgraph, obj_val):
+    initialized_solution = Solution(weights, subgraph)
+    solution, value = execute_VND(obj_val, initialized_solution)
+    return solution, value, False, None
 
 def execute_VND(curval, sol):
     ''' Variable Neighbourhood Descent
@@ -96,7 +100,7 @@ def execute_VND(curval, sol):
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set: remove moved_vertex and add it to the other bicluster
                 update_move_vertex(neighbour,VNDsolution)
-            print("finished with move vertex: " +str(time.time()-start))
+            #print("finished with move vertex: " +str(time.time()-start))
         # join bicluster
         elif k==1:
             # find best neighbour in the neighbourhood join bicluster
@@ -108,7 +112,7 @@ def execute_VND(curval, sol):
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set : remove both biclusters and add new joined one
                 update_join_bicluster(neighbour,VNDsolution)
-            print("finished with join: " +str(time.time()-start))
+            #print("finished with join: " +str(time.time()-start))
 
         # break bicluster
         else: #k==2
@@ -120,7 +124,7 @@ def execute_VND(curval, sol):
                 # update edit matrix and bicluster set : remove broken bicluster and add the two new ones
                 changed = True
                 update_break_bicluster(neighbour,VNDsolution)
-            print("finished with break: " +str(time.time()-start))
+            #int("finished with break: " +str(time.time()-start))
         # for all three neighbourhoods:
         if changed: k=0
         else : k+=1
@@ -132,7 +136,7 @@ def find_best_move_vertex(curval, sol): # curval is value of the current solutio
     bestval= np.inf
     bestneighbour=None
     pos_after_clust_V1, pos_after_clust_V2= helpers.find_possible_biclusters(sol.bicluster_set, sol.number_biclusters, num_rows)
-    print("number of clusters: " + str(len(pos_after_clust_V1))+ "\t"+str(len(pos_after_clust_V2)) )
+    #print("number of clusters: " + str(len(pos_after_clust_V1))+ "\t"+str(len(pos_after_clust_V2)) )
 
     for i in range(sol.number_biclusters): # loop through every bicluster
         for node in sol.bicluster_set[i].nodes: # every node in this bicluster

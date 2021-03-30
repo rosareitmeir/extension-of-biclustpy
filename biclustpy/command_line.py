@@ -15,11 +15,12 @@ def main():
     instance.add_argument("--random", nargs=4, help="Randomly generate instance with num-rows rows and num-cols columns whose cells are of the form ((random value between 0 and 1) - threshold).", metavar=("num-rows", "num-cols", "threshold", "seed"))
     parser.add_argument("--names", default=False, action="store_true", help="column and row names for instance is given.")
     parser.add_argument("--save", help="Save bi-clusters as XML file.", metavar="output-file")
-    parser.add_argument("--alg", default="ILP", help="Employed algorithm. Default = ILP.", choices=["ILP", "CH","GRASP"])
+    parser.add_argument("--alg", default="ILP", help="Employed algorithm. Default = ILP.", choices=["ILP", "CH","GRASP", "RANDOM"])
     parser.add_argument("--metaheu", help="Employed meatheuristics.", choices=["ILS", "GVNS"])
     parser.add_argument("--metaheu_options", nargs=4, type=str, default=[20, 2,10, "inf"], help="Options for the metaheuristic ILS and GVNS: maximum number of iterations to find an improved solution, minimal and maximal number of pertubations, time limit in sec.", metavar=("max-iter", "nmin","nmax", "time limit"))
     parser.add_argument("--grasp_options", nargs=4, type=str, default=[30, 0.5,"None", "inf"], help="Options for the algorithm GRASP: maximum number of iterations to find best solution, alpha ( between 0 and 1) to sort pairs out w.r.t to their g-values,seed for random choice.", metavar=("max-iter", "alpha","seed", "time limit"))
     parser.add_argument("--ilp_options", nargs=2, type=int, default=[60, 0], help="Options for the algorithm ILP: time limit in second and flag that indicates whether model should be tuned before optimization.", metavar=("time-limit", "tune"))
+    parser.add_argument("--random_options", type=int, default=20, help="number of random initialization")
     parser.add_argument("--preprocess", type=str, nargs=2, default=["New", "Rule"], help="preprocessing method: Rule 2 or default New Rule")
     parser.add_argument("--calc_gvalues", default="", type=str, help="calculate and save gvalues, path to gvalue file")
     parser.add_argument("--load_gvalues",  type=str, default=None,  help="Option for CH/GRASP: loading g-values ", metavar=("path to gvalue file"))
@@ -67,6 +68,7 @@ def main():
     algorithm = bp.Algorithm()
     algorithm.algorithm_name = args.alg
     algorithm.ilp_time_limit = args.ilp_options[0]
+    algorithm.num_init=args.random_options
     algorithm.ilp_tune = args.ilp_options[1]
     algorithm.max_iter=int(args.grasp_options[0])
     algorithm.grasp_alpha=float(args.grasp_options[1])
