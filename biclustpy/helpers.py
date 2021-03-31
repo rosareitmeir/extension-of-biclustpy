@@ -246,3 +246,20 @@ def find_possible_biclusters(bicluster_set,number_biclusters, num_rows):
                 pos_after_cluster_V2.remove(i)
 
     return pos_after_cluster_V1, pos_after_cluster_V2
+
+def sort_out_singeltons(bicluster_set,number_biclusters):
+    not_singeltons=[]
+
+    for i in range(number_biclusters):
+        nodes = list(bicluster_set[i].nodes)
+        if len(nodes) > 1:
+                not_singeltons.append(i)
+
+    return not_singeltons
+
+
+
+
+
+
+

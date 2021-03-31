@@ -34,12 +34,18 @@ def create_random_solution(weights, graph):
     while (len(rows)>0 and len(cols)>0):
         r=np.random.randint(len(rows)+1)
         c = np.random.randint(len(cols)+1)
-        while ( r==0 and (c==0 or c>1)) or ( c==0 and (r==0 or r>1)):
+        while ( r==0 and c!=1) or ( c==0 and r!=1):
             r = np.random.randint(len(rows)+1)
             c = np.random.randint(len(cols)+1)
 
         random_rows = set(sample(rows, r))
         random_cols = set(sample(cols, c))
+        if len(random_rows)==0 and len(random_cols)>1:
+            print("Help")
+        if len(random_cols)==0 and len(random_rows)>1:
+            print("Help")
+
+
         bi_transitive_subgraph.add_nodes_from(random_rows)
         bi_transitive_subgraph.add_nodes_from(random_cols)
         bi_transitive_subgraph.add_edges_from([(j, l) for j in random_cols for l in random_rows])

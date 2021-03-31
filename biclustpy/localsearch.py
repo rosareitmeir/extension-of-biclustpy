@@ -1,6 +1,8 @@
 import copy
 import itertools
 import time
+import random
+
 #from .
 import helpers
 import numpy as np
@@ -196,6 +198,20 @@ def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two 
     # nodes
     before_cluster.remove_node(moved_node)
     after_cluster.add_node(moved_node)
+    if (all(helpers.is_row(n, num_rows) for n in list(before_cluster.nodes)) or all(helpers.is_col(n, num_rows) for n in list(before_cluster.nodes))) and len(list(before_cluster.nodes))>1 :
+        print("help")
+        # before cluster must be transformed to singletons with own bicluster column
+        rightorder=True
+        if all(helpers.is_col(n, num_rows) for n in list(before_cluster.nodes)):
+            rightorder=False
+        for node in list(before_cluster.nodes):
+            column=build_singelton_column(node,sol, rightorder)
+            sol.edit_matrix = np.append(sol.edit_matrix, column, axis=1)
+
+        sol.edit_matrix = np.delete(sol.edit_matrix, before_cluster_index, 1)
+        sol.bicluster_set.remove(before_cluster)
+        sol.number_biclusters += len(list(before_cluster.nodes))-1
+
     # edges
     if moved_node in V1:
         after_cluster.add_edges_from([(moved_node, l)  for l in [elem for elem in after_cluster.nodes if elem in partition2]])
@@ -209,6 +225,16 @@ def update_move_vertex(neighbour, sol): # neighbour with moved_node and the two 
         sol.bicluster_set.remove(before_cluster)
         sol.number_biclusters -=1
 
+def build_singelton_column(single, sol, rightorder):
+
+    column=np.zeros((len(V1) + len(V2 ), 1), dtype=np.int)
+    other_part=V2
+    if not rightorder:
+        other_part=V1
+
+    for node in other_part:
+        node_idx=sol.node_to_matrix[node]
+        column[node_idx] -= get_weight(rightorder, single, node)
 
 
 def find_best_join_bicluster(curval, sol):
@@ -255,6 +281,16 @@ def update_join_bicluster(neighbour, sol):
     biclust2_index = neighbour[1]
     biclust2=sol.bicluster_set[biclust2_index]
 
+    bic2_left_nodes = [k for k in biclust2.nodes if helpers.is_row(k, num_rows)]
+    bic1_left_nodes = [k for k in biclust1.nodes if helpers.is_row(k, num_rows)]
+    bic2_right_nodes = [k for k in biclust2.nodes if helpers.is_col(k, num_rows)]
+    bic1_right_nodes = [k for k in biclust1.nodes if helpers.is_col(k, num_rows)]
+
+    if len(bic2_left_nodes) == 0 and len(bic1_left_nodes) == 0:
+        print("help")
+    if len(bic2_right_nodes) == 0 and len(bic1_right_nodes) ==0:
+        print("help")
+
     joined_biclust= np.zeros((len(V1) + len(V2), 1), dtype=np.int)
     # calculation resp. to formula on page 12
     for node in (V1 + V2):
@@ -291,7 +327,7 @@ def find_best_break_bicluster(curval, sol):
     # according to page 12
     for i in range(len(sol.bicluster_set)):
         # calculate value for this solution
-        value,biclust1,biclust2=calc_break_bicluster(i,sol,curval)
+        value,biclust1,biclust2=check_calc_break_bicluster(i, sol, curval)
         if value==None:
             continue
         if value<bestvalue:
@@ -301,7 +337,7 @@ def find_best_break_bicluster(curval, sol):
     return bestvalue,bestneighbour
 
 
-def calc_break_bicluster(biclust_idx,sol,curval):
+def check_calc_break_bicluster(biclust_idx, sol, curval):
     bicluster = sol.bicluster_set[biclust_idx]
     biclust1 = []
     biclust2 = []
@@ -316,10 +352,15 @@ def calc_break_bicluster(biclust_idx,sol,curval):
     if not biclust1 or not biclust2 or helpers.is_no_valid_biclique(biclust1,biclust2):
         return None, None, None
 
+    value=calc_break_bicluster(biclust1, biclust2, curval)
+    return value, biclust1,biclust2
+
+
+def calc_break_bicluster(biclust1, biclust2, curval):
     # calculating value for break , formula (14) on page 12
-    #first sum
-    nodes_bic2_V2= [x for x in biclust2 if x in V2]
-    nodes_bic1_V2= [x for x in biclust1 if x in V2]
+    # first sum
+    nodes_bic2_V2 = [x for x in biclust2 if x in V2]
+    nodes_bic1_V2 = [x for x in biclust1 if x in V2]
     sum1 = 0
     for node1 in [x for x in biclust1 if x in V1]:
         for node2 in nodes_bic2_V2:
@@ -331,9 +372,8 @@ def calc_break_bicluster(biclust_idx,sol,curval):
             sum2 += get_weight(True, node1, node2)
     # together:
     value = curval + sum1 + sum2
-    return value, biclust1,biclust2
 
-
+    return value
 
 def update_break_bicluster(neighbour, sol):
     # according to page 12
@@ -358,14 +398,26 @@ def update_break_bicluster(neighbour, sol):
     sol.edit_matrix=np.delete(sol.edit_matrix, broken_clust_idx, 1)
 
     #update bicluster set
+    bic2_left_nodes= [k for k in biclust2 if helpers.is_row(k,num_rows)]
+    bic1_left_nodes = [k for k in biclust1 if helpers.is_row(k, num_rows)]
+    bic2_right_nodes = [k for k in biclust2 if helpers.is_col(k, num_rows)]
+    bic1_right_nodes = [k for k in biclust1 if helpers.is_col(k, num_rows)]
+
+    if len(bic2_left_nodes)==0 and len(bic2_right_nodes)>1:
+        print("help")
+    if len(bic2_right_nodes)==0 and len(bic2_left_nodes)>1:
+        print("help")
+    if len(bic1_right_nodes)==0 and len(bic1_left_nodes)>1:
+        print("help")
+
+    if len(bic1_left_nodes) == 0 and len(bic1_right_nodes) > 1:
+        print("help")
     bicluster1= helpers.build_bicluster( biclust1)
     bicluster2= helpers.build_bicluster( biclust2)
     sol.bicluster_set.append(bicluster1)
     sol.bicluster_set.append(bicluster2)
     sol.bicluster_set.remove(sol.bicluster_set[broken_clust_idx])
     sol.number_biclusters= len(sol.bicluster_set)
-
-
 
 def build_cluster_column(column, rightorder, biclust1, biclust2, broken_clust_idx, sol):
     if rightorder:
@@ -432,12 +484,11 @@ def shake_solution(nmin, nmax, inputsol, before_val, k=None):
         # break bicluster
         elif ILS or k==2:
                 random_movement=get_random_breakcluster(shaked_sol,shaked_val)
-                if random_movement == None: # rare case: only singletons in current solution or non valid breaks possible resulted from bind function
+                if random_movement == None: # rare case: only singletons in current solution
                     if ILS and shaked_sol.number_biclusters>1: # try it again with move-vertex or join-bicluster
                         k = np.random.randint(2) # k= 0 or 1
                         continue
                     else: break # GVNS case, no valid neighbour in break-bicluster-neighbourhood -> shaking is finished
-
                 shaked_val= random_movement[0]
                 neighbour=random_movement[1]
                 update_break_bicluster(neighbour,shaked_sol)
@@ -449,13 +500,68 @@ def shake_solution(nmin, nmax, inputsol, before_val, k=None):
     return shaked_sol,shaked_val
 
 
+def get_random_breakcluster(sol,curval):
+    
+    not_singeltons= helpers.sort_out_singeltons(sol.bicluster_set, sol.number_biclusters)
+    if len(not_singeltons)==0:
+        return None
+    i=random.choice(not_singeltons)
+    bicluster = sol.bicluster_set[i]
+    left_nodes = set([k for k in bicluster.nodes if helpers.is_row(k, num_rows)])
+    right_nodes = set([k for k in bicluster.nodes if helpers.is_col(k, num_rows)])
+    left_size=len(left_nodes)
+    right_size=len(right_nodes)
+    bc1_left = np.random.randint(left_size +1)
+    bc1_right = np.random.randint(right_size + 1)
+
+    while (bc1_left == 0 and  bc1_right != 1) or (bc1_right == 0 and bc1_left !=1) or (bc1_right==right_size and bc1_left!=left_size-1) or (bc1_left==left_size and bc1_right!=right_size-1) :
+        bc1_left = np.random.randint(left_size + 1)
+        bc1_right = np.random.randint(right_size + 1)
+
+    print("end while loop")
+    print(str(left_size) + " " + str(right_size))
+    print(str(bc1_left) + " " + str(bc1_right))
+
+    bic1_left_nodes = set(random.sample(left_nodes, bc1_left))
+    bic1_right_nodes = set(random.sample(right_nodes, bc1_right))
+    biclust1= list(bic1_right_nodes) + list(bic1_left_nodes)
+    print(biclust1)
+    if (all(helpers.is_row(n, num_rows) for n in biclust1) or all(helpers.is_col(n, num_rows) for n in biclust1)) and len(biclust1)>1 :
+        print("help")
+
+    bic2_left_nodes=left_nodes-bic1_left_nodes
+    bic2_right_nodes=right_nodes-bic1_right_nodes
+    biclust2= list(bic2_right_nodes) + list(bic2_left_nodes)
+    print(biclust2)
+    if (all(helpers.is_row(n, num_rows) for n in biclust2) or all(helpers.is_col(n, num_rows) for n in biclust2)) and len(biclust2)>1 :
+        print("help")
+
+    if len(bic2_left_nodes)==0 and len(bic2_right_nodes)>1:
+        print(help)
+    if len(bic2_right_nodes)==0 and len(bic2_left_nodes)>1:
+        print(help)
+    if len(bic1_right_nodes)==0 and len(bic1_left_nodes)>1:
+        print(help)
+
+
+    if len(bic1_left_nodes) == 0 and len(bic1_right_nodes) > 1:
+        print(help)
+    
+    value=calc_break_bicluster(biclust1, biclust2, curval)
+    
+    random_break_movement=[value, [biclust1,biclust2,i]]
+    return random_break_movement
+    
+    
+
+
+def ge_random_breakcluster(sol,value):
 
 
 
-def get_random_breakcluster(sol,value):
     possible_break_clusters=[]
     for i in range(sol.number_biclusters):
-        checked_val, biclust1, biclust2 = calc_break_bicluster(i, sol, value)
+        checked_val, biclust1, biclust2 = check_calc_break_bicluster(i, sol, value)
         if checked_val!=None:
             possible_break_clusters.append([checked_val,[biclust1,biclust2,i]])
 
