@@ -96,6 +96,10 @@ class Algorithm:
         self.algorithm_name="RANDOM"
         self.num_init=num_init
 
+    def use_VND(self):
+        self.algorithm_name="VND"
+
+
             
     def run(self, weights, subgraph, obj_val=None, metaheuristic=None):
         """Runs the selected algorithm on a given subgraph.
@@ -234,8 +238,12 @@ def compute_bi_clusters(weights, preprocessing_method, algorithm, calc_gv=False,
             continue
         bi_transitive_subgraph, local_obj_val, local_is_optimal, time_till_best = algorithm.run(weights, subgraph, obj_val=None, metaheuristic=metaheurisitc)
         # improve solution by chosen metaheuristic: GVNS or ILS
-        # returns improved graph and its objective value 
-        if metaheurisitc != None:
+        # returns improved graph and its objective value
+        alg_is_random=False
+        if algorithm.algorithm_name =="RANDOM":
+            alg_is_random=True
+
+        if metaheurisitc != None and not alg_is_random:
             print("Optimizing constructed bi-transitive subgraph with "+ metaheurisitc.algorithm_name+".")
             bi_transitive_subgraph, local_obj_val, local_is_optimal, time_till_best = metaheurisitc.run(weights, bi_transitive_subgraph, local_obj_val)
 

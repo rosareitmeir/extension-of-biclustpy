@@ -40,15 +40,9 @@ def create_random_solution(weights, graph):
 
         random_rows = set(sample(rows, r))
         random_cols = set(sample(cols, c))
-        if len(random_rows)==0 and len(random_cols)>1:
-            print("Help")
-        if len(random_cols)==0 and len(random_rows)>1:
-            print("Help")
-
-
         bi_transitive_subgraph.add_nodes_from(random_rows)
         bi_transitive_subgraph.add_nodes_from(random_cols)
-        bi_transitive_subgraph.add_edges_from([(j, l) for j in random_cols for l in random_rows])
+        bi_transitive_subgraph.add_edges_from([( l,j) for j in random_cols for l in random_rows])
         rows=rows-random_rows
         cols=cols-random_cols
 
