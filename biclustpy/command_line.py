@@ -70,17 +70,8 @@ def main():
     algorithm.ilp_time_limit = args.ilp_options[0]
     algorithm.num_init=args.random_options
     algorithm.ilp_tune = args.ilp_options[1]
-    algorithm.max_iter=int(args.grasp_options[0])
     algorithm.grasp_alpha=float(args.grasp_options[1])
-    if args.grasp_options[2] == "None":
-            algorithm.seed= None
-    else:
-        algorithm.seed=int(args.grasp_options[2])
-
-    if args.grasp_options[3] == "inf":
-        algorithm.grasp_time_limit= np.inf
-    else:
-        algorithm.grasp_time_limit = int(args.grasp_options[3])
+    algorithm.set_grasp_options(args.grasp_options[0], args.grasp_options[2], args.grasp_options[3])
 
     # reading g-value file
     all_gvalues=[]
@@ -114,16 +105,16 @@ def main():
     if args.metaheu is not None:
         metaheuristic = bp.Algorithm()
         metaheuristic.algorithm_name = args.metaheu
-        metaheuristic.max_iter=int(args.metaheu_options[0])
-        metaheuristic.nmin = int(args.metaheu_options[1])
-        metaheuristic.nmax = int(args.metaheu_options[2])
-        if args.metaheu_options[3]  != "inf":
-            metaheuristic.meta_time_limit = int(args.metaheu_options[3])
-        else:
-            metaheuristic.meta_time_limit = np.inf
+        max_iter=args.metaheu_options[0]
+        nmin = float(args.metaheu_options[1])
+        nmax = float(args.metaheu_options[2])
+        timelimit=args.metaheu_options[3]
+        metaheuristic.set_metaheu_parameters(max_iter, timelimit,  nmin, nmax, weights.shape[0]+ weights.shape[1])
 
         bi_clusters, obj_val, is_optimal , time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, False, metaheuristic)
+
     elif args.calc_gvalues=="":
+        # run without metaheuristic
         bi_clusters, obj_val, is_optimal, time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, False)
     else:
         # calc g-values

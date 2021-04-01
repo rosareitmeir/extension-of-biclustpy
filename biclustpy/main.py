@@ -1,3 +1,4 @@
+
 import grasp
 import gvns
 import ils
@@ -44,7 +45,44 @@ class Algorithm:
         self.gval=None
         self.num_init= 20
 
-    
+    def set_metaheu_parameters(self,max_iter, limit,  nmin, nmax, num_nodes):
+        if np.ma.ceil(nmin) != nmin:
+            self.nmin= int(np.ma.ceil(nmin*num_nodes))
+        else:
+            self.nmin = nmin
+        if np.ma.ceil(nmax) != nmax:
+            self.nmax = int(nmax * num_nodes)
+
+        else:
+            self.nmax= nmax
+
+        if limit != "inf":
+            self.meta_time_limit = int(limit)
+        else:
+            self.meta_time_limit = np.inf
+
+        if max_iter != "inf":
+            self.max_iter = int(limit)
+        else:
+            self.max_iter = np.inf
+
+
+    def set_grasp_options(self, max_iter,  seed, limit):
+        if seed == "None":
+            self.seed = None
+        else:
+            self.seed = int(seed)
+
+        if limit == "inf":
+            self.grasp_time_limit = np.inf
+        else:
+            self.grasp_time_limit = int(limit)
+
+        if max_iter == "inf":
+            self.max_iter = np.inf
+        else:
+            self.maxiter= int(max_iter)
+
     def use_ilp(self, time_limit = 60, tune = False):
         """Use the algorithm \"ILP\".
             
