@@ -53,7 +53,7 @@ def main():
 
             else:
                 weights= np.loadtxt(args.load, delimiter=delim)
-            #weights = weights.astype(np.int)
+            weights = weights.astype(np.int)
 
 
 
