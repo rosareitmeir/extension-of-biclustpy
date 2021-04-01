@@ -32,10 +32,14 @@ def main():
     if args.load is not None:
         if args.load.endswith(".npy"):
             weights = np.load(args.load)
-        elif args.load.endswith(".tsv"):
+        else:
+            delim=","
+            if args.load.endswith(".tsv"):
+                delim="\t"
+
             if args.names:
                 with open(args.load) as f:
-                    reader = csv.reader(f, delimiter="\t")
+                    reader = csv.reader(f, delimiter=delim)
                     columns = next(reader)
                     rownames=[]
                     for row in reader:
@@ -45,14 +49,13 @@ def main():
                     names = dict(zip(range(numrow, numrow+ numcol), columns))
                     names.update(dict(zip(range(0, len(rownames)), rownames)))
 
-                weights= np.loadtxt(args.load, delimiter="\t", skiprows=1,usecols=range(1,numcol))
+                weights= np.loadtxt(args.load, delimiter=delim, skiprows=1,usecols=range(1,numcol))
 
-            else:  weights= np.loadtxt(args.load, delimiter="\t")
-            weights = weights.astype(np.int)
+            else:
+                weights= np.loadtxt(args.load, delimiter=delim)
+            #weights = weights.astype(np.int)
 
-                
-        elif args.load.endswith(".csv"):
-            weights= np.loadtxt(args.load, delimiter=",")
+
 
     
     if args.random is not None:
@@ -106,10 +109,10 @@ def main():
         metaheuristic = bp.Algorithm()
         metaheuristic.algorithm_name = args.metaheu
         max_iter=args.metaheu_options[0]
-        nmin = float(args.metaheu_options[1])
-        nmax = float(args.metaheu_options[2])
+        metaheuristic.nmin = float(args.metaheu_options[1])
+        metaheuristic.nmax = float(args.metaheu_options[2])
         timelimit=args.metaheu_options[3]
-        metaheuristic.set_metaheu_parameters(max_iter, timelimit,  nmin, nmax, weights.shape[0]+ weights.shape[1])
+        metaheuristic.set_metaheu_parameters(max_iter, timelimit)
 
         bi_clusters, obj_val, is_optimal , time, metaheu_times = bp.compute_bi_clusters(weights, preprocessing_method, algorithm, False, metaheuristic)
 

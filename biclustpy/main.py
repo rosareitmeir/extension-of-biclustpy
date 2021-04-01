@@ -45,16 +45,7 @@ class Algorithm:
         self.gval=None
         self.num_init= 20
 
-    def set_metaheu_parameters(self,max_iter, limit,  nmin, nmax, num_nodes):
-        if np.ma.ceil(nmin) != nmin:
-            self.nmin= int(np.ma.ceil(nmin*num_nodes))
-        else:
-            self.nmin = nmin
-        if np.ma.ceil(nmax) != nmax:
-            self.nmax = int(nmax * num_nodes)
-
-        else:
-            self.nmax= nmax
+    def set_metaheu_parameters(self,max_iter, limit):
 
         if limit != "inf":
             self.meta_time_limit = int(limit)
@@ -65,6 +56,23 @@ class Algorithm:
             self.max_iter = int(limit)
         else:
             self.max_iter = np.inf
+
+
+    def set_perturbation_parameters(self, num_nodes):
+
+        if np.ma.ceil(self.nmin) != self.nmin:
+            min = int(np.ma.ceil(self.nmin * num_nodes))
+        else:
+            min = self.nmin
+        if np.ma.ceil(self.nmax) != self.nmax:
+            max = int(self.nmax * num_nodes)
+
+        else:
+            max = self.nmax
+
+        return min, max
+
+
 
 
     def set_grasp_options(self, max_iter,  seed, limit):
@@ -171,9 +179,11 @@ class Algorithm:
         elif self.algorithm_name =="VND":
             return localsearch.run_VND(weights, subgraph, obj_val)
         elif self.algorithm_name == "GVNS":
-            return gvns.run(weights, subgraph,obj_val, self.max_iter,self.nmin,self.nmax, self.meta_time_limit)
+            nmin, nmax = self.set_perturbation_parameters(len(subgraph.nodes))
+            return gvns.run(weights, subgraph,obj_val, self.max_iter,nmin,nmax, self.meta_time_limit)
         elif self.algorithm_name == "ILS":
-            return ils.run(weights, subgraph,obj_val,self.max_iter,self.nmin,self.nmax, self.meta_time_limit)
+            nmin, nmax = self.set_perturbation_parameters(len(subgraph.nodes))
+            return ils.run(weights, subgraph,obj_val,self.max_iter,nmin,nmax, self.meta_time_limit)
         else:
             raise Exception("Invalid algorithm name \"" + self.algorithm_name + "\". Options: \"ILP\", \"CH\",\"GRASP\",\"ILS\",\"GVNS\", \"RANDOM\" .")
     
