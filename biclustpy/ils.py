@@ -20,8 +20,12 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
     stopcond=False
     elapsed = 0
     while not stopcond and elapsed <timeout:
+        s=time.time()
         shaked_solution,shaked_value=localsearch.shake_solution(nmin, nmax, best_solution, best_value, k=None)
+        print("finished shaking " + str(time.time() - s))
+        s = time.time()
         VND_solution,VND_value= localsearch.execute_VND(shaked_value, shaked_solution)
+        print("finished vnd " + str(time.time() - s))
         # check acceptance criterion
         if VND_value < best_value:
                 best_iter=cur_iter

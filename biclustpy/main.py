@@ -53,7 +53,7 @@ class Algorithm:
             self.meta_time_limit = np.inf
 
         if max_iter != "inf":
-            self.max_iter = int(limit)
+            self.max_iter = int(max_iter)
         else:
             self.max_iter = np.inf
 
