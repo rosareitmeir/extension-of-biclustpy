@@ -66,7 +66,7 @@ class Algorithm:
             min = self.nmin
         if np.ma.ceil(self.nmax) != self.nmax:
             # +1 for numpy method, high limit is exclusive
-            max = int(self.nmax * num_nodes)+1
+            max = int(np.ma.ceil(self.nmax * num_nodes))+1
 
         else:
             max = self.nmax
