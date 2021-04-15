@@ -27,7 +27,7 @@ def run(weights, bi_transitive_subgrpah, obj_val, max_iter,nmin,nmax, timeout):
         VND_solution,VND_value= localsearch.execute_VND(shaked_value, shaked_solution)
         print("finished vnd " + str(time.time() - s))
         # check acceptance criterion
-        if VND_value < best_value:
+        if helpers.is_better_than_cur_sol(VND_solution, VND_value, best_solution, best_value):
                 best_iter=cur_iter
                 best_solution=VND_solution
                 best_value=VND_value

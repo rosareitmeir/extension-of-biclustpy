@@ -49,11 +49,11 @@ def main():
                     names = dict(zip(range(numrow, numrow+ numcol), columns))
                     names.update(dict(zip(range(0, len(rownames)), rownames)))
 
-                weights= np.loadtxt(args.load, delimiter=delim, skiprows=1,usecols=range(1,numcol))
+                f.close()
+                weights= np.loadtxt(args.load,   delimiter=delim, skiprows=1,usecols=range(1,numcol))
 
             else:
                 weights= np.loadtxt(args.load, delimiter=delim)
-            weights = weights.astype(np.int)
 
 
 

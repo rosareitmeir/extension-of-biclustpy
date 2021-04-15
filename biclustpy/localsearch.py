@@ -33,7 +33,7 @@ class Solution:
     def initialize_edit_matrix(self):
         # according to the instruction on page10
         # set all entries to zero
-        edit_matrix = np.zeros((len(V1) + len(V2), self.number_biclusters), dtype=np.int)
+        edit_matrix = np.zeros((len(V1) + len(V2), self.number_biclusters))
         node1_idx=0
         node_to_matrix = {}
         # go through every pair (node1,node2) node1 € V1 , node2 € V2
@@ -233,7 +233,7 @@ def build_singelton_column(single, sol,  rightorder):
     if rightorder:
         partition=V1
 
-    column=np.zeros((len(V1) + len(V2 ), 1), dtype=np.int)
+    column=np.zeros((len(V1) + len(V2 ), 1))
 
     for node in partition:
         node_idx=sol.node_to_matrix[node]
@@ -292,7 +292,7 @@ def update_join_bicluster(neighbour, sol):
     bic1_right_nodes = [k for k in biclust1.nodes if helpers.is_col(k, num_rows)]
 
 
-    joined_biclust= np.zeros((len(V1) + len(V2), 1), dtype=np.int)
+    joined_biclust= np.zeros((len(V1) + len(V2), 1))
     # calculation resp. to formula on page 12
     for node in (V1 + V2):
         matrix_index= sol.node_to_matrix[node]
@@ -384,12 +384,12 @@ def update_break_bicluster(neighbour, sol):
     broken_clust_idx= neighbour[2]
     # calculations for new bicluster1 and bicluster2 from broken bicluster
     # column for bicluster1:
-    col_B1=np.zeros((len(V1) + len(V2 ), 1), dtype=np.int)
+    col_B1=np.zeros((len(V1) + len(V2 ), 1))
     col_B1=build_cluster_column(col_B1, True, biclust1, biclust2, broken_clust_idx, sol)
     col_B1=build_cluster_column(col_B1, False, biclust1, biclust2, broken_clust_idx, sol)
 
     # column for bicluster2
-    col_B2 = np.zeros((len(V1) + len(V2), 1), dtype=np.int)
+    col_B2 = np.zeros((len(V1) + len(V2), 1))
     col_B2 = build_cluster_column(col_B2, True, biclust2, biclust1, broken_clust_idx, sol)
     col_B2 = build_cluster_column(col_B2, False, biclust2, biclust1, broken_clust_idx, sol)
 

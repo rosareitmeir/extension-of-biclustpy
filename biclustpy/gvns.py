@@ -23,12 +23,12 @@ def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax, timeout):
             shaked_sol,shaked_val = localsearch.shake_solution(nmin, nmax, best_solution, best_val,k)
             # descent phase : local search using VND
             VND_sol, VND_val=localsearch.execute_VND(shaked_val, shaked_sol)
-            if VND_val < best_val:
-                best_solution=VND_sol
-                best_val=VND_val
-                better_sol_found=True
-                time_of_best=time.time()-start
-                k=0
+            if  helpers.is_better_than_cur_sol(VND_sol, VND_val, best_solution, best_val):
+                    best_solution=VND_sol
+                    best_val=VND_val
+                    better_sol_found=True
+                    time_of_best=time.time()-start
+                    k=0
             else: k+=1
         if better_sol_found:
             best_iter=cur_iter
@@ -37,3 +37,12 @@ def run(weights, bi_transitive_subgrpah, cur_val,maxiter,nmin,nmax, timeout):
 
     optimized_subgraph= helpers.graph_from_components(best_solution.bicluster_set)
     return optimized_subgraph,best_val,False, time_of_best
+
+
+
+
+
+
+
+
+

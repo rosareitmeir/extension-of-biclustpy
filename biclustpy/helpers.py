@@ -259,6 +259,33 @@ def sort_out_singeltons(bicluster_set,number_biclusters):
 
 
 
+def is_better_than_cur_sol(newsol, newval, cursol, curval):
+    if curval - newval > 0.000001:
+        #to be sure check if the sol are not the same
+        if are_same_sol(newsol.bicluster_set, cursol.bicluster_set):
+            return False
+        else:
+            return True
+
+    return False
+
+
+def are_same_sol(sol1, sol2):
+
+    pos_matches= list(range(len(sol2)))
+    for bic1 in sol1:
+        match =False
+        for i in pos_matches:
+            bic2=sol2[i]
+            if set(bic1.nodes) == set(bic2.nodes):
+                match=True
+                pos_matches.pop(i)
+                break
+        if not match:
+            return False
+    return True
+
+
 
 
 

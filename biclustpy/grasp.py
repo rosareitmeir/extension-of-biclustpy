@@ -23,17 +23,11 @@ def run(weights, subgrpah, maxiter,alpha,seed, timeout, queue=None):
 
    while cur_iter - best_iter <= maxiter and elapsed < timeout:
        # construction phase : create solution using CH run-method with alpha>1 -> random choice of pairs
-       t=time.time()
        bi_transitive_subgrpah,value,optimal, n=ch.run(weights,subgrpah,alpha,seed,queue)
-       print("construct "+ str(time.time()-t))
-       t = time.time()
        cur_solution=localsearch.Solution(weights, bi_transitive_subgrpah)
-       print("initialize "+ str(time.time()-t))
-       t=time.time()
        # local search phase: VND executed for obtained solution
        improved_solution, value= localsearch.execute_VND(value, cur_solution)
-       print("VND finish "+ str(time.time()-t))
-       if value < best_value:
+       if helpers.is_better_than_cur_sol(improved_solution, value, best_solution, best_value):
             best_solution= improved_solution
             best_value=value
             time_of_best=time.time()-start
