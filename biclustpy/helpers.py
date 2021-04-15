@@ -260,7 +260,10 @@ def sort_out_singeltons(bicluster_set,number_biclusters):
 
 
 def is_better_than_cur_sol(newsol, newval, cursol, curval):
-    if curval - newval > 0.000001:
+    if curval -newval >= 1:
+        return True
+    # weighted case
+    if curval - newval >= 0.000001:
         #to be sure check if the sol are not the same
         if are_same_sol(newsol.bicluster_set, cursol.bicluster_set):
             return False
@@ -279,7 +282,7 @@ def are_same_sol(sol1, sol2):
             bic2=sol2[i]
             if set(bic1.nodes) == set(bic2.nodes):
                 match=True
-                pos_matches.pop(i)
+                pos_matches.remove(i)
                 break
         if not match:
             return False
