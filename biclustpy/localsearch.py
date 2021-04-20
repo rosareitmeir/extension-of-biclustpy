@@ -98,7 +98,7 @@ def execute_VND(curval, sol):
             start=time.time()
             neighbour_val,neighbour=find_best_move_vertex(VND_val, VNDsolution)
 
-            if neighbour_val<VND_val: #new better solution found
+            if  VND_val- neighbour_val > 0.001: #new better solution found
                 changed=True
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set: remove moved_vertex and add it to the other bicluster
@@ -110,7 +110,7 @@ def execute_VND(curval, sol):
             start=time.time()
             neighbour_val, neighbour=find_best_join_bicluster(VND_val, VNDsolution)
 
-            if neighbour_val< VND_val:
+            if VND_val- neighbour_val > 0.001:
                 changed=True
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set : remove both biclusters and add new joined one
@@ -122,7 +122,7 @@ def execute_VND(curval, sol):
             # find best neighbour in the neighbourhood break bicluster
             start=time.time()
             neighbour_val, neighbour=find_best_break_bicluster(VND_val, VNDsolution)
-            if neighbour_val< VND_val:
+            if VND_val- neighbour_val > 0.001:
                 VND_val=neighbour_val
                 # update edit matrix and bicluster set : remove broken bicluster and add the two new ones
                 changed = True
@@ -150,7 +150,7 @@ def find_best_move_vertex(curval, sol): # curval is value of the current solutio
                 if j!=i:
                 # calculate objective value for the neighbour according to formula (10) on page 11
                     value= curval + sol.edit_matrix[matrix_index][j] + sol.edit_matrix[matrix_index][i]
-                    if value < bestval:
+                    if  bestval -value > 0.001:
                         bestval=value
                         bestneighbour=[node,i,j] # list of movement: moved node from bicluster i to bicluster j
 
@@ -253,7 +253,7 @@ def find_best_join_bicluster(curval, sol):
     for (index_biclust1, index_biclust2) in all_joins:
         biclust1=sol.bicluster_set[index_biclust1]
         val= calc_join_bicluster(biclust1,index_biclust2,sol,curval)
-        if val < bestval:
+        if  bestval -val > 0.001:
             bestval=val
             bestneighbour=[index_biclust1, index_biclust2]
 
@@ -331,7 +331,7 @@ def find_best_break_bicluster(curval, sol):
         value,biclust1,biclust2=check_calc_break_bicluster(i, sol, curval)
         if value==None:
             continue
-        if value<bestvalue:
+        if  bestvalue -value > 0.001:
             bestvalue=value
             bestneighbour=[biclust1,biclust2,i]
 
